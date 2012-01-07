@@ -1,0 +1,90 @@
+#container {
+	height: 400px;
+}
+
+#image {
+	float: left;
+	overflow: auto;
+	width: 50%;
+	border: 1px solid black;
+	height: 100%;
+	margin-bottom: 5px;
+}
+
+#parse-box {
+	float: right;
+	padding-left: 5px; 
+	width: 49%;
+	height: 100%;
+	margin-bottom: 5px;
+}
+
+#parse-box textarea {
+	width: 100%;
+	height: 100%;
+	border: 1px solid black;
+	margin: 0;
+	resize: none;
+}
+
+#annotation-box {
+	float: left;
+	width: 100%;
+	margin-bottom: 5px;
+}
+
+#annotation-box input {
+	width: 80%;
+	margin-bottom: 3px;
+}
+
+#tags-box {
+	border: 1px solid black;
+	margin-bottom: 5px;
+	width: 100%;
+}
+
+#tags-padder {
+	padding: 2px;
+	overflow: auto;
+}
+
+#tags-padder div {
+	float: left;
+	/*width: 150px;*/
+	margin-right: 15px;
+}
+
+.clear {
+	clear: both;
+}
+
+#buttons {
+	float: right;
+}
+
+h3 {
+	margin-bottom: 5px;
+}
+
+h2 {
+	margin: 0;
+}
+
+.accelerator {
+	font-weight: bold;
+}
+
+.tag-label-machine {
+	color: gray;
+}
+
+a.desired-link {
+	color: red;
+}
+
+div #random-link {
+	float: right;
+	border: 1px solid black;
+	padding: 3px;
+}

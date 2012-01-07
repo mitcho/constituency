@@ -1,0 +1,16 @@
+array(2) {
+  ["linkWithFirstDet"]=>
+  array(2) {
+    ["secondDet"]=>
+    int(26)
+    ["secondNoDet"]=>
+    int(35)
+  }
+  ["linkWithoutFirstDet"]=>
+  array(2) {
+    ["secondDet"]=>
+    int(12)
+    ["secondNoDet"]=>
+    int(45)
+  }
+}
