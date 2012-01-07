@@ -284,7 +284,7 @@ $(function() {
 			result += ' [<a href="http://metafilter.com/' + this.id + '/" target="_new">MeFi</a>]:</h3>';
 			if (tree) {
 				$.each(this.treedata, function() {
-					result += '<span class="tree"><img src="phpsyntaxtree/stgraph.svg?data=' + escape(this) + '"/></span>';
+					result += '<span class="tree"><img src="lib/phpsyntaxtree/stgraph.svg?data=' + escape(this) + '"/></span>';
 				});
 			} else {
 				result += '<span class="content">' + this.content + '</span>';

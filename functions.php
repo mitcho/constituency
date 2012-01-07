@@ -8,7 +8,7 @@ $terminalNodeLabels = array(
 	'PRP$'
 );
 
-define("PARSER_DIR", dirname(__FILE__) . "/stanford-parser-2010-07-09");
+define("PARSER_DIR", dirname(__FILE__) . "/lib/stanford-parser-2010-07-09");
 define("DOT_TIMEOUT", 100000);
 define("PUNCTUATION", ",|\\.|!|\\?|-LRB-|-RRB-|:|;|'|\"|\\\\$|``|#");
 

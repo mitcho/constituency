@@ -212,7 +212,7 @@ function randomLink($random, $entry, $id) {
 <?php echo "<form action=\"display.php?entry=$entry&id=$id&tables=$tables$debugExtra\" method=\"POST\">"; ?>
 <div id="container">
 <div id="image">
-<?php echo '<img src="phpsyntaxtree/stgraph.svg?data=' . $imageData . '" alt="Tree: ' . $imageData . "\" />\n"; ?>
+<?php echo '<img src="lib/phpsyntaxtree/stgraph.svg?data=' . $imageData . '" alt="Tree: ' . $imageData . "\" />\n"; ?>
 </div>
 
 <div id="parse-box">
