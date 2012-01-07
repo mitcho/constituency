@@ -802,13 +802,14 @@ function tokenize($text) {
 		2 => array("pipe", "w") // stderr is a pipe that the child will write to
 	);
 
-	$process = proc_open('java -cp ' . PARSER_DIR . '/stanford-parser.jar:. SimpleTokenizer', $descriptorspec, $pipes);
+	$process = proc_open('DYLD_LIBRARY_PATH=; java -cp ' . PARSER_DIR . '/stanford-parser.jar:lib/SimpleTokenizer:. SimpleTokenizer', $descriptorspec, $pipes);
 
 	fwrite($pipes[0], $text);
 	fclose($pipes[0]);
 	$output = stream_get_contents($pipes[1]);
 
 	fclose($pipes[1]);
+	
 	return $output;
 }
 
@@ -842,7 +843,7 @@ function openParser($format) {
 	$memory = " -Xmx1024M";
 	if ($web)
 		$memory = " -Xmx256M";
-	$parser_processes[$format] = proc_open("java $memory -cp " . PARSER_DIR . "/stanford-parser.jar edu.stanford.nlp.parser.lexparser.LexicalizedParser -outputFormat \"{$format}\" " . PARSER_DIR . "/englishPCFG.ser.gz -", $descriptorspec, $parser_pipes[$format]);
+	$parser_processes[$format] = proc_open("DYLD_LIBRARY_PATH=; java $memory -cp " . PARSER_DIR . "/stanford-parser.jar edu.stanford.nlp.parser.lexparser.LexicalizedParser -outputFormat \"{$format}\" " . PARSER_DIR . "/englishPCFG.ser.gz -", $descriptorspec, $parser_pipes[$format]);
 	stream_set_blocking($parser_pipes[$format][1], 0);
 	
 	if (!is_resource($parser_processes[$format]))
@@ -998,7 +999,7 @@ function splitSentences($text) {
 	  2 => array("pipe", "w") // stderr is a pipe that the child will write to
 	);
 
-	$process = proc_open("./tokenizer -S -E '' -L en-u8 -P -n", $descriptorspec, $pipes, getcwd() . "/tokenizer-1.0");
+	$process = proc_open("./tokenizer -S -E '' -L en-u8 -P -n", $descriptorspec, $pipes, getcwd() . "/lib/tokenizer-1.0");
 
 	$output = "";
 
