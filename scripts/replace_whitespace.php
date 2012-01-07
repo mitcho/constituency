@@ -3,9 +3,9 @@
 // Replace the <<<LINK...\nLINK; annotations in the db
 
 // Provides common judgement functions
-include("functions.php");
+include("../functions.php");
 // Connect to the database, provides $session and $success
-include("connect_mysql.php");
+include("../connect_mysql.php");
 if ($_REQUEST['tables']) {
 	define("ENTRIES_TABLE", "hyperlinks_entries_" . $_REQUEST['tables']);
 	define("LINKS_TABLE", "hyperlinks_links_" . $_REQUEST['tables']);
