@@ -1,5 +1,16 @@
 <?php
 
+include('backpress/bp-support.php');
+include('backpress/class.bpdb.php');
+include('backpress/functions.core.php');
+//include('backpress/functions.formatting.php');
+//include('backpress/functions.plugin-api.php');
+
+if (isset($_SERVER['SSL_CLIENT_S_DN_Email']))
+	define('USERNAME',strtolower(trim($_SERVER['SSL_CLIENT_S_DN_Email'])));
+else
+	define('USERNAME',get_current_user());
+
 // Known terminal node labels:
 // PTB says 'NP', 'NPS', 'PP' are terminals, but they're not in our corpus (???)
 // For some reason in our db, possessive pronouns are PRP$, not PP$.

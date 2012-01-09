@@ -1,6 +1,6 @@
 <?php
-include("connect_mysql.php");
 include("functions.php");
+include("connect_mysql.php");
 
 $args = parseArgs(isset($argv) ? $argv : array());
 extract($args);
@@ -8,8 +8,8 @@ extract($args);
 $host = $_SERVER['HTTP_HOST'];
 $uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 
-$entry = mysql_real_escape_string($entry);
-$id = mysql_real_escape_string($id);
+$entry = (int) $entry;
+$id = (int) $id;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -45,8 +45,6 @@ if(!$debug)
 	define('SUPPRESS_OUTPUT', true);
 else
 	$debugExtra = "&debug=true";
-
-$user = mysql_real_escape_string(get_current_user());
 
 $constituencyValues = array("" => "Q", "constituent" => "W", "not_constituent" => "E", "multiple_constituents" => "R", "error" => "T");
 $failureValues = array("" => "Y", "missing_before" => "U", "missing_after" => "I", "missing_before_after" => "O", "x_clausal" => "P");
