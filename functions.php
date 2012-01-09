@@ -3,8 +3,11 @@
 include('backpress/bp-support.php');
 include('backpress/class.bpdb.php');
 include('backpress/functions.core.php');
-//include('backpress/functions.formatting.php');
-//include('backpress/functions.plugin-api.php');
+include('backpress/functions.formatting.php');
+include('backpress/functions.plugin-api.php');
+
+define("ENTRIES_TABLE", "entries");
+define("LINKS_TABLE", "links");
 
 if (isset($_SERVER['SSL_CLIENT_S_DN_Email']))
 	define('USERNAME',strtolower(trim($_SERVER['SSL_CLIENT_S_DN_Email'])));
@@ -1103,12 +1106,8 @@ function parseArgs($argv) {
 		$result['range'] = array(0,100000000);
 
 	if ($result['tables']) {
-		define("ENTRIES_TABLE", "hyperlinks_entries_" . mysql_real_escape_string($result['tables']));
-		define("LINKS_TABLE", "hyperlinks_links_" . mysql_real_escape_string($result['tables']));
 		define("TAGS_TABLE", "tags_xref_" . mysql_real_escape_string($result['tables']));
 	} else {
-		define("ENTRIES_TABLE", "hyperlinks_entries");
-		define("LINKS_TABLE", "hyperlinks_links");
 		define("TAGS_TABLE", "tags_xref");
 		$result['tables'] = 'original';
 	}

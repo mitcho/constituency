@@ -1,6 +1,7 @@
 <?php
-include("functions.php");
-include("connect_mysql.php");
+include('functions.php');
+include('functions.display.php');
+include('connect_mysql.php');
 
 $args = parseArgs(isset($argv) ? $argv : array());
 extract($args);
@@ -11,9 +12,8 @@ $uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 $entry = (int) $entry;
 $id = (int) $id;
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 <title>The &lt;a&gt;constituent&lt;/a&gt; Project | Display</title>
 <link type="text/css" rel="stylesheet" href="display.css" />
@@ -79,13 +79,12 @@ if ($id !== '' && $entry !== '') {
 
 	// Update if we received new code.
 	if(isset($_POST) && count($_POST) > 0) {
-		$stanford = mysql_real_escape_string(oneParsePerLine($_POST['stanford']));
 		$constituency = mysql_real_escape_string($_POST['constituency']);
 		$failure_type = mysql_real_escape_string($_POST['failure_type']);
 		$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
 		$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
 
-		$q1 = mysql_query("update " . ENTRIES_TABLE . " set stanford = '$stanford', annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
+		$q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
 		$q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
 		$q3 = true;
 		if($constituency != "constituent")
@@ -117,105 +116,24 @@ if ($id !== '' && $entry !== '') {
 }
 
 // wait until updates are done to change $entry and $id
-if($random) {
-	$results = mysql_query("select entry, id from " . LINKS_TABLE . " order by RAND() limit 1");
-	$row = mysql_fetch_array($results);
-	$entry = $row['entry'];
-	$id = $row['id'];
+if ($random) {
+	$results = $db->get_row( "select entry, id from " . LINKS_TABLE . " order by RAND() limit 1", ARRAY_A );
+	extract($results);
 }
 
 if ($id !== '' && $entry !== '') {
-	$results = mysql_query("select e.stanford, e.content, e.annotation, l.text, l.href, l.constituency, l.failure_type, l.lannotation from " . ENTRIES_TABLE . " as e join " . LINKS_TABLE . " as l where e.id = $entry and l.entry = $entry and l.id = $id");
-	$row = mysql_fetch_array($results);
-	$constituency = $row['constituency'];
-	$failureType = $row['failure_type'];
-	$entryAnnotation = htmlspecialchars($row['annotation']);
-	$linkAnnotation = htmlspecialchars($row['lannotation']);
+	extract($db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A));
+	// @todo e.annotation, l.constituency, l.failure_type, l.lannotation
+	//$constituency = $row['constituency'];
+	//$failureType = $row['failure_type'];
+	//$entryAnnotation = htmlspecialchars($row['annotation']);
+	//$linkAnnotation = htmlspecialchars($row['lannotation']);
 
-	$fulltext = $row['content'];
-	$prePattern = preg_quote($row['href']) . '\V+' . preg_quote($row['text']);
-	$prePattern = preg_replace("!(/)!", '\/', $prePattern);
-	$pattern = '/\V*' . $prePattern . '\V*/';
-	preg_match($pattern, $fulltext, $match);
-	if(isset($match[0]))
-		$text = $match[0];
-
-	// make the desired link colored.
-	$aPattern = '<a href=["\']' . preg_quote($row['href']) . '["\']';
-	$aPattern = preg_replace("!(/)!", '\/', $aPattern);
-	$text = preg_replace("/$aPattern/", '$0 class="desired-link"', $text);
-
-	// process text slightly to remove unsightly things
-	$text = trim($text);
-	$text = preg_replace('/^<br>/', '', $text);
-
-	$parse = $row['stanford'];
-	$treePattern = getPattern($row['text']);
-	$treePattern = '/\V*' . $treePattern . '\V*/';
-	preg_match($treePattern, $parse, $match);
-
-	if(isset($match[0]))
-		$tree = $match[0];
-	$imageData = htmlspecialchars(str_replace('"', '\\"', formatParseTree($tree)));
+	$text = formatDisplayEntry($content, $text, $href);
 	
 	$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
 	while($row = mysql_fetch_array($results))
 		$tags[$row['tid']]['enabled'] = true;
-}
-
-// Generates a list of <option> tags with the tag named $value starred.
-function generateOptions($optionKeys, $value) {
-	$names = array_keys($optionKeys);
-	foreach ($names as $name) {
-		echo "<option id=\"option-{$optionKeys[$name]}\" value=\"$name";
-		if($name == $value)
-			echo '" selected="selected">*';
-		else
-			echo '">';
-		echo "<span class=\"accelerator\">({$optionKeys[$name]})</span> $name</option>\n";
-	}
-}
-
-// Prints the tag checkboxes.
-function printTags($tags, $tagKeys) {
-	$tids = array_keys($tags);
-	// use separate indexing so key events are easier.
-	$i = 0; // human
-	$j = 0; // machine
-	foreach($tids as $tid) {
-		$tagDetails = $tags[$tid];
-		$human = $tagDetails['human'] ? '' : ' disabled="disabled"';
-		$idAppend = $tagDetails['human'] ? $i : "machine-$j";
-		$labelClass = $tagDetails['human'] ? 'tag-label-human' : 'tag-label-machine';
-		$number = $tagDetails['human'] ? "<span class=\"accelerator\">({$tagKeys[$i]})</span> " : '';
-		$enabled = $tagDetails['enabled'] ? ' checked="checked"' : '';
-		echo "<div><input type=\"checkbox\" name=\"tags[$tid]\" value=\"1\" id=\"tag-$idAppend\"$human$enabled />";
-		echo "<label for=\"tag-$tid\" class=\"$labelClass\"> $number{$tagDetails['name']}</label></div>\n";
-		if($tagDetails['human'])
-			$i++;
-		else
-			$j++;
-	}
-}
-
-function randomLink($random, $entry, $id) {
-	$host = $_SERVER['HTTP_HOST'];
-	$uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-
-	$newget = $_GET;
-
-	if($random) {
-		$newget['entry'] = $entry;
-		$newget['id'] = $id;
-		unset($newget['random']);
-	}
-	else {
-		$newget['random'] = 'true';
-		unset($newget['entry']);
-		unset($newget['id']);
-	}
-
-	return "http://$host$uri/display.php?" . http_build_query($newget);
 }
 ?>
 
@@ -228,12 +146,10 @@ function randomLink($random, $entry, $id) {
 <?php echo "<form action=\"display.php?entry=$entry&id=$id&tables=$tables$debugExtra\" method=\"POST\">"; ?>
 <div id="container">
 <div id="image">
-<?php echo '<img src="lib/phpsyntaxtree/stgraph.svg?data=' . $imageData . '" alt="Tree: ' . $imageData . "\" />\n"; ?>
 </div>
 
 <div id="parse-box">
 <textarea id="parse" rows="10" cols="30" name="stanford" wrap="off">
-<?php echo htmlspecialchars(trim(retabTree($parse, "  "))); ?>
 </textarea>
 </div>
 </div>
