@@ -63,7 +63,7 @@ extract($data);
 //$entryAnnotation = htmlspecialchars($row['annotation']);
 //$linkAnnotation = htmlspecialchars($row['lannotation']);
 
-$text = formatDisplayEntry($content, $text, $href);
+$text = formatDisplayEntry(wp_kses_data($content), $text, $href);
 
 ?>
 <!DOCTYPE html>
