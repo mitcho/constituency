@@ -71,6 +71,11 @@ function maybeLoadTrees() {
 }
 
 $(document).ready(function() {
+	// make sure we can scroll enough to hide next/prev:
+	$('#container').css('min-height',$(document).height() - 20);
+	// always hide next/prev immediately.
+	$(document).scrollTop($('#entry').offset().top - 60);
+
 	$('.tabs').tabs();
 	$('.topbar').dropdown();
 	$('[rel=twipsy]').twipsy();
@@ -97,38 +102,20 @@ $(document).ready(function() {
 			return;
 		}
 		
-		if(theChar == 'R')
-			window.location = $('#random-link').attr('href');
+		if (theChar == 'R')
+			return window.location = $('#random-link').attr('href');
 	
-		if( theChar == 'K' || theChar == 'J' ) {
-			submit.click();
+		if (theChar == 'C')
+			return $('#constituent').click();
+
+		if (theChar == 'N')
+			return $('#not_constituent').click();
+
+		if( theChar == 'J' )
+			return window.location = $('#prev').attr('href');
 	
-			var l = window.location.toString();
-			// @todo get_link.xml doesn't actually exist right now
-			var url = loc.replace(/display.php(.*)$/,'/get_link.xml.php');
-	
-			var	parsetype = $('#parse-control li.active').attr('data-parse_type');
-	
-			var data = {entry: entry, id: id, parse_type: parsetype};
-			if (theChar === 'K')
-				json.next = 'yes';
-			else if(theChar === 'J')
-				json.previous = 'yes';
-	
-			if($('#random').val() === 'true')
-				ata = {random: 'yes', parse_type: parsetype};
-	
-			$.get(url, data, function(data) {
-				var link = $(data).find("link").eq(0);
-	
-				var queryString = $.param({
-					parse_type: parsetype,
-					entry: link.attr("entry"),
-					id: link.attr("id")
-				});
-				window.location = 'display.php?' + queryString;
-			}, 'xml');
-		}
+		if( theChar == 'K' )
+			return window.location = $('#next').attr('href');
 	});
 	$('submit').focus();
 

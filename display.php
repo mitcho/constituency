@@ -121,7 +121,17 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	</div>
   </div>
 </div>
+
 <div class="container container-maybe-fluid" id='container'>
+
+<div class="row" id="nextprev">
+<?php
+$prev = getNextPrevLink($entry, $id, 'prev');
+$next = getNextPrevLink($entry, $id, 'next');
+?>
+<div class="pull-left <?php if (!$prev) echo ' disabled';?>"><a id='prev' href="<?php echo esc_url($prev);?>">&larr; Previous <span class='accelerator'>(J)</span></a></div>
+<div class="pull-right <?php if (!$next) echo ' disabled';?>"><a id='next' href="<?php echo esc_url($next);?>"><span class='accelerator'>(K)</span> Next &rarr;</a></div>
+</div>
 
 <div id='entry' class='well'><?php echo $text; ?></div>
 

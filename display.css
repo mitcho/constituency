@@ -6,6 +6,13 @@ body {
 	margin-bottom: 20px;
 }
 
+#nextprev {
+	margin-left: 0px;
+}
+#nextprev a.disabled {
+	display: none;
+}
+
 #parse-container {
 	margin-bottom: 10px;
 }

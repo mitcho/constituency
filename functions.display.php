@@ -42,3 +42,17 @@ function randomLink($random) {
 	
 	return 'display.php?' . http_build_query($args);
 }
+
+// $dir == 'next' or 'prev'
+function getNextPrevLink( $entry, $id, $dir ) {
+	global $db;
+	
+	$compare = $dir == 'next' ? '>' : '<';
+	$order = $compare == '>' ? 'asc' : 'desc';
+	$result = $db->get_row("select entry, id from " . LINKS_TABLE . " where entry $compare $entry or (entry = $entry and id $compare $id) order by entry $order, id $order limit 1");
+
+	if ( $result === false || empty($result) )
+		return false;
+	
+	return permalink($result->entry, $result->id);
+}
