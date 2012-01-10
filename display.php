@@ -16,6 +16,7 @@ extract($args);
 
 $entry = (int) $entry;
 $id = (int) $id;
+$random_tag_label = '';
 
 // Update
 if ( $entry && isset($_POST) && !empty($_POST) ) {
@@ -43,10 +44,23 @@ if ( empty($id) ) {
 }
 
 // wait until updates are done to change $entry and $id
-if ( $random || ($id === 0 && empty($entry)) ) {
+if ( $random && is_numeric($random) ) {
+	$random = (int) $random;
+
+	$random_tag = $db->get_var( "select name from tags where id = {$random}" );
+	// if the tag exists
+	if ( $random_tag ) {
+		$results = $db->get_row( "select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid) where tid = {$random} order by RAND() limit 1", ARRAY_A );
+		extract($results);
+		
+		$random_tag_label = " ($random_tag)";
+	}
+}
+
+if ( ($id === 0 && empty($entry)) || ($random && empty($random_tag_label)) ) {
 	$results = $db->get_row( "select entry, id from " . LINKS_TABLE . " order by RAND() limit 1", ARRAY_A );
 	extract($results);
-	$random = 1;
+	$random = 'true';
 }
 
 $data = $db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A);
@@ -102,7 +116,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	  <a class="brand" href="http://constituency.mit.edu/">&lt;a&gt;constituent&lt;/a&gt;</a>
 	  <ul class="nav">
 	  	<li<?php if ( !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
-		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random</a></li>
+		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random<?php echo $random_tag_label; ?></a></li>
 	  </ul>
 	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
 	  <ul class='nav secondary-nav'>

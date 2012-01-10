@@ -34,7 +34,9 @@ function permalink($entry, $id) {
 }
 
 function randomLink($random) {
-	$args = array('random' => true);
+	if (!$random)
+		$random = 'true'; // just for randomLink purposes
+	$args = array('random' => $random);
 	if ( isset($_GET['debug']) )
 		$args['debug'] = 1;
 	if ( isset($_GET['tables']) )
