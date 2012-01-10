@@ -1111,9 +1111,9 @@ function parseArgs($argv) {
 }
 
 // Add a tag to the cross-reference table.
-function addTag($entry, $id, $tid) {
+function addTag($entry, $id, $tid, $type = 'human', $user = USERNAME) {
 	global $db;
-	$db->insert(TAGS_TABLE, array('tid' => $tid, 'entry' => $entry, 'lid' => $id), array('%d', '%d', '%d'));
+	$db->insert(TAGS_TABLE, array('tid' => $tid, 'entry' => $entry, 'lid' => $id, 'type' => $type, 'user' => $user), array('%d', '%d', '%d', '%s', '%s'));
 }
 
 // Remove a tag from the cross-reference table.
