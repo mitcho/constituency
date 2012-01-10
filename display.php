@@ -120,7 +120,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 <body>
 <div class="topbar">
   <div class="topbar-inner">
-	<div class="container-fluid container-maybe-fluid">
+	<div class="container container-maybe-fluid">
 	  <a class="brand" href="http://constituency.mit.edu/">&lt;a&gt;constituent&lt;/a&gt;</a>
 	  <ul class="nav">
 	  	<li<?php if ( !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
@@ -128,7 +128,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	  </ul>
 	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
 	  <ul class='nav secondary-nav'>
-	  	<li><a id='toggleWidth' href='#'>Narrow</a></li>
+	  	<li><a id='toggleWidth' href='#'>Wide</a></li>
 		<li class="dropdown" id='parse-control'>
 			<a class="dropdown-toggle" href="#">Parse: <?php echo $parse_type ? esc_html($parse_type) : 'None'; ?></a>
 			<ul class="dropdown-menu">
@@ -143,7 +143,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	</div>
   </div>
 </div>
-<div class="container-fluid container-maybe-fluid" id='container'>
+<div class="container container-maybe-fluid" id='container'>
 <?php
 
 $tagKeys = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
