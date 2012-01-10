@@ -19,10 +19,6 @@ $id = (int) $id;
 
 // Update
 if ( $entry && isset($_POST) && !empty($_POST) ) {
-	$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
-	while($row = mysql_fetch_array($results))
-		$tags[$row['tid']]['enabled'] = true;
-
 	$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
 	$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
 
@@ -34,21 +30,6 @@ if ( $entry && isset($_POST) && !empty($_POST) ) {
 	if(!($q1 && $q2 && $q3))
 		echo mysql_error();
 	
-	$tids = array_keys($tags);
-	if(!isset($_POST['tags']))
-		$_POST['tags'] = array();
-	$checkedTags = $_POST['tags'];
-	foreach($tids as $tid) {
-		if(isset($checkedTags[$tid]) && !$tags[$tid]['enabled']) {
-			addTag($entry, $id, $tid);
-			$tags[$tid]['enabled'] = true;
-		}
-		else if(!isset($checkedTags[$tid]) && $tags[$tid]['enabled']) {
-			delTag($entry, $id, $tid);
-			$tags[$tid]['enabled'] = false;
-		}
-	}
-
 	// If that was an asynchronous update, end.
 	if(isset($_POST['async'])) {
 		echo "</body>\n</html>";
@@ -84,10 +65,6 @@ extract($data);
 
 $text = formatDisplayEntry($content, $text, $href);
 
-$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
-while($row = mysql_fetch_array($results))
-	$tags[$row['tid']]['enabled'] = true;
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -98,6 +75,7 @@ while($row = mysql_fetch_array($results))
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <?php 
@@ -144,20 +122,6 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
   </div>
 </div>
 <div class="container container-maybe-fluid" id='container'>
-<?php
-
-$tagKeys = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
-
-$tags = array();
-$tagged = array();
-
-$results = mysql_query("select * from tags");
-while($row = mysql_fetch_array($results))
-	$tags[$row['id']] = array('name' => $row['name'], 
-	                          'enabled' => false, 
-							  'human' => $row['human'] ? true : false);
-
-?>
 
 <div id='entry'><?php echo $text; ?></div>
 
@@ -180,7 +144,12 @@ while($row = mysql_fetch_array($results))
 <div class='row'>
 <div class='span8'>
 	<h4>Tags</h4>
-	<?php printTags($tags, $tagKeys); ?>
+<?php
+$tags = $db->get_results("select * from tags left join tags_xref on (tags.`id` = tags_xref.tid and entry = $entry and lid = $id) where human = 1 and parse_specific = 0");
+foreach ($tags as $tag) {
+	
+}
+?>
 </div>
 <div class='span4'>
 	<h4>Entry<h4>

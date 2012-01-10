@@ -20,28 +20,6 @@ function formatDisplayEntry($content, $text, $href) {
 	return $text;
 }
 
-// Prints the tag checkboxes.
-function printTags($tags, $tagKeys) {
-	$tids = array_keys($tags);
-	// use separate indexing so key events are easier.
-	$i = 0; // human
-	$j = 0; // machine
-	foreach($tids as $tid) {
-		$tagDetails = $tags[$tid];
-		$human = $tagDetails['human'] ? '' : ' disabled="disabled"';
-		$idAppend = $tagDetails['human'] ? $i : "machine-$j";
-		$labelClass = $tagDetails['human'] ? 'tag-label-human' : 'tag-label-machine';
-		$number = $tagDetails['human'] ? "<span class=\"accelerator\">({$tagKeys[$i]})</span> " : '';
-		$enabled = $tagDetails['enabled'] ? ' checked="checked"' : '';
-		echo "<div><input type=\"checkbox\" name=\"tags[$tid]\" value=\"1\" id=\"tag-$idAppend\"$human$enabled />";
-		echo "<label for=\"tag-$tid\" class=\"$labelClass\"> $number{$tagDetails['name']}</label></div>\n";
-		if($tagDetails['human'])
-			$i++;
-		else
-			$j++;
-	}
-}
-
 function permalink($entry, $id) {
 	$args = array(
 		'entry' => $entry,

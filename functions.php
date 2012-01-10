@@ -1112,12 +1112,12 @@ function parseArgs($argv) {
 
 // Add a tag to the cross-reference table.
 function addTag($entry, $id, $tid) {
-	if(!mysql_query("insert into " . TAGS_TABLE . " set tid = $tid, entry = $entry, lid = $id"))
-		echo mysql_error();;
+	global $db;
+	$db->insert(TAGS_TABLE, array('tid' => $tid, 'entry' => $entry, 'lid' => $id), array('%d', '%d', '%d'));
 }
 
 // Remove a tag from the cross-reference table.
 function delTag($entry, $id, $tid) {
-	if(!mysql_query("delete from " . TAGS_TABLE . " where tid = $tid and entry = $entry and lid = $id"))
-		echo mysql_error();;
+	global $db;
+	$db->query("delete from " . TAGS_TABLE . " where tid = $tid and entry = $entry and lid = $id");
 }
