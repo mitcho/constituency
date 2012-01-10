@@ -1,4 +1,3 @@
-var tagKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 var lastTimeout = null;
 var id, entry;
 
@@ -79,6 +78,10 @@ $(document).ready(function() {
 	id = $('input#id').val(),
 	entry = $('input#entry').val();
 
+	var toggles = $('.inputs-list label:not(.disabled)').slice(0,9).each(function(i) {
+		$(this).children('span').prepend('<span class="accelerator">(' + (i + 1) + ')</span> ');
+	});
+
 	$(document.body).keyup(function onkeyup(e) {
 		var theChar = String.fromCharCode(e.keyCode);
 	
@@ -86,10 +89,16 @@ $(document).ready(function() {
 		var focused = $('input[type=text]:focus, textarea:focus');
 		if (focused.length)
 			return;
+
+		// Tags
+		if (theChar === (parseInt(theChar) + '')) {
+			var toggle = toggles.eq(parseInt(theChar) - 1).find('input');
+			toggle.attr('checked', !toggle.attr('checked'));
+			return;
+		}
 		
-		var i = tagKeys.indexOf(theChar);
-		if(i > -1)
-			$('#tag-' + i).click();
+		if(theChar == 'R')
+			window.location = $('#random-link').attr('href');
 	
 		if( theChar == 'K' || theChar == 'J' ) {
 			submit.click();
@@ -120,9 +129,6 @@ $(document).ready(function() {
 				window.location = 'display.php?' + queryString;
 			}, 'xml');
 		}
-	
-		if(theChar == 'M')
-			window.location = $('#random-link').attr('href');
 	});
 	$('submit').focus();
 

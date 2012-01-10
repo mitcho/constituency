@@ -102,7 +102,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	  <a class="brand" href="http://constituency.mit.edu/">&lt;a&gt;constituent&lt;/a&gt;</a>
 	  <ul class="nav">
 	  	<li<?php if ( !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
-		<li<?php if ( $random ) echo " class='active'";?>><a href="<?php echo randomLink($random); ?>"><span class="accelerator">(M)</span> Random</a></li>
+		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random</a></li>
 	  </ul>
 	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
 	  <ul class='nav secondary-nav'>
@@ -144,7 +144,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 <div class='row'>
 <div class='span-one-third'>
 	<h4>Tags</h4>
-	<ul class='inputs-list'>
+	<ul class='inputs-list' id='tags'>
 <?php
 $tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and entry = $entry and lid = $id) where parse_specific = 0");
 foreach ($tags as $tag) {
