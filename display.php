@@ -3,6 +3,14 @@ include('functions.php');
 include('functions.display.php');
 include('connect_mysql.php');
 
+// Comment out to avoid errors, etc. if not in debug mode.
+$debug = isset($_GET['debug']);
+$debugExtra = "";
+if(!$debug)
+	define('SUPPRESS_OUTPUT', true);
+else
+	$debugExtra = "&debug=true";
+
 $args = parseArgs(isset($argv) ? $argv : array());
 extract($args);
 
@@ -16,8 +24,11 @@ $id = (int) $id;
 <html>
 <head>
 <title>The &lt;a&gt;constituent&lt;/a&gt; Project | Display</title>
+<link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
 <link type="text/css" rel="stylesheet" href="display.css" />
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <?php 
 if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
@@ -37,14 +48,33 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 <?php endif;?>
 </head>
 <body>
+<div class="topbar">
+  <div class="topbar-inner">
+	<div class="container-fluid container-maybe-fluid">
+	  <a class="brand" href="http://constituency.mit.edu/">&lt;a&gt;constituent&lt;/a&gt;</a>
+	  <ul class="nav">
+	  	<li<?php if ( !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
+		<li<?php if ( $random ) echo " class='active'";?>><a href="<?php echo randomLink($random); ?>"><span class="accelerator">(M)</span> Random</a></li>
+	  </ul>
+	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
+	  <ul class='nav secondary-nav'>
+	  	<li><a id='toggleWidth' href='#'>Narrow</a></li>
+		<li class="dropdown" id='parse-control'>
+			<a class="dropdown-toggle" href="#">Parse: <?php echo $parse_type ? esc_html($parse_type) : 'None'; ?></a>
+			<ul class="dropdown-menu">
+				<?php foreach ( $db->get_col('select type from parses group by type') as $possible_type ): ?>
+				<li<?php if ( $possible_type === $parse_type ) echo ' class="active"'; ?> data-parse_type='<?php echo esc_attr($possible_type); ?>'><a href="#"><?php echo esc_html($possible_type); ?></a></li>
+				<?php endforeach; ?>
+				<li class="divider"></li>
+				<li<?php if ( false === $parse_type ) echo ' class="active"'; ?> data-parse_type=''><a href="#">None</a></li>
+			</ul>
+		</li>
+	  </ul>
+	</div>
+  </div>
+</div>
+<div class="container-fluid container-maybe-fluid">
 <?php
-// Comment out to avoid errors, etc. if not in debug mode.
-$debug = isset($_GET['debug']);
-$debugExtra = "";
-if(!$debug)
-	define('SUPPRESS_OUTPUT', true);
-else
-	$debugExtra = "&debug=true";
 
 $constituencyValues = array("" => "Q", "constituent" => "W", "not_constituent" => "E", "multiple_constituents" => "R", "error" => "T");
 $failureValues = array("" => "Y", "missing_before" => "U", "missing_after" => "I", "missing_before_after" => "O", "x_clausal" => "P");
@@ -53,9 +83,6 @@ $tagKeys = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
 $skipNoLinkEntries = false;
 
 $text = "Error.";
-$parse = "Error.";
-$tree = "Error.";
-$imageData = "[ERR Error.]";
 $constituency = "";
 $failureType = "";
 $tags = array();
@@ -137,21 +164,20 @@ if ($id !== '' && $entry !== '') {
 }
 ?>
 
-<div><a id="random-link" href="<?php echo randomLink($random, $entry, $id); ?>"><span class="accelerator">(M)</span> <?php echo $random ? 'Permalink' : 'Random'; ?></a></div>
+<div id='entry'><?php echo $text; ?></div>
 
-<h2>Entry #<?php echo $entry; ?>, link #<?php echo $id; ?> in tables "<?php echo $tables; ?>":</h2>
+<form action="display.php?entry=<?php echo $entry; ?>&id=<?php echo $id; ?>&parse_type=<?php echo $parse_type . $debugExtra; ?>" method='POST'>
 
-<p><?php echo $text; ?></p>
-
-<?php echo "<form action=\"display.php?entry=$entry&id=$id&tables=$tables$debugExtra\" method=\"POST\">"; ?>
-<div id="container">
-<div id="image">
-</div>
-
-<div id="parse-box">
-<textarea id="parse" rows="10" cols="30" name="stanford" wrap="off">
-</textarea>
-</div>
+<div id='parse-container'>
+	<ul class="tabs">
+	<li class="active"><a href="#image">Image</a></li>
+	<li><a href="#parse-box">Brackets</a></li>
+	</ul>
+	 
+	<div class="pill-content">
+	<div class="active" id="image"></div>
+	<div id="parse-box"><textarea id="parse" rows="10" cols="30" name="stanford" wrap="off" spellcheck='false'></textarea></div>
+	</div>
 </div>
 
 <div id="annotation-box">
@@ -173,14 +199,15 @@ if ($id !== '' && $entry !== '') {
 <select name="failure_type" id="failure_select">
 <?php generateOptions($failureValues, $failureType); ?>
 </select>
-<span id="before-submit"></span><input type="submit" id="submit" />
+<span id="before-submit"></span><input type="submit" id="submit" class='btn primary' value='Save!' />
 </div>
 
 <input type="hidden" id="random" value="<?php echo $random ? 'true' : 'false'; ?>" />
 <input type="hidden" id="entry" value="<?php echo $entry; ?>" />
 <input type="hidden" id="id" value="<?php echo $id; ?>" />
-<input type="hidden" id="tables" value="<?php echo $tables; ?>" />
+<input type="hidden" id="parse_type" value="<?php echo $parse_type; ?>" />
 </form>
 
+</div><!--/container-->
 </body>
 </html>

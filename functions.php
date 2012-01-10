@@ -5,9 +5,11 @@ include('backpress/class.bpdb.php');
 include('backpress/functions.core.php');
 include('backpress/functions.formatting.php');
 include('backpress/functions.plugin-api.php');
+include('backpress/functions.kses.php');
 
 define("ENTRIES_TABLE", "entries");
 define("LINKS_TABLE", "links");
+define("TAGS_TABLE", "tags_xref");
 
 if (isset($_SERVER['SSL_CLIENT_S_DN_Email']))
 	define('USERNAME',strtolower(trim($_SERVER['SSL_CLIENT_S_DN_Email'])));
@@ -39,7 +41,7 @@ $definedArgs = array(
 	'-data' => 1,
 	'-entry' => 1,
 	'-id' => 1,
-	'-tables' => 1, 
+	'-parse_type' => 1, 
 	'-next' => 0, 
 	'-previous' => 0);
 
@@ -1104,13 +1106,6 @@ function parseArgs($argv) {
 	// if range not set by now, default to "everything"
 	if (!$result['range'])
 		$result['range'] = array(0,100000000);
-
-	if ($result['tables']) {
-		define("TAGS_TABLE", "tags_xref_" . mysql_real_escape_string($result['tables']));
-	} else {
-		define("TAGS_TABLE", "tags_xref");
-		$result['tables'] = 'original';
-	}
 
 	return $result;
 }

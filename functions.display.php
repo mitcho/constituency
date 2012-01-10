@@ -55,22 +55,25 @@ function printTags($tags, $tagKeys) {
 	}
 }
 
-function randomLink($random, $entry, $id) {
-	$host = $_SERVER['HTTP_HOST'];
-	$uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+function permalink($entry, $id) {
+	$args = array(
+		'entry' => $entry,
+		'id' => $id
+	);
+	if ( isset($_GET['debug']) )
+		$args['debug'] = true;
+	if ( isset($_GET['tables']) )
+		$args['tables'] = $_GET['tables'];
+	
+	return 'display.php?' . http_build_query($args);
+}
 
-	$newget = $_GET;
-
-	if($random) {
-		$newget['entry'] = $entry;
-		$newget['id'] = $id;
-		unset($newget['random']);
-	}
-	else {
-		$newget['random'] = 'true';
-		unset($newget['entry']);
-		unset($newget['id']);
-	}
-
-	return "http://$host$uri/display.php?" . http_build_query($newget);
+function randomLink($random) {
+	$args = array('random' => true);
+	if ( isset($_GET['debug']) )
+		$args['debug'] = 1;
+	if ( isset($_GET['tables']) )
+		$args['tables'] = $_GET['tables'];
+	
+	return 'display.php?' . http_build_query($args);
 }

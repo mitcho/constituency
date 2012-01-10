@@ -1,11 +1,62 @@
 var tagKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 var optionKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
 var lastTimeout = null;
+var id, entry;
+
+function toggleWidth() {
+	if ($('.container-maybe-fluid.container-fluid').length) {
+		$('.container-maybe-fluid').removeClass('container-fluid').addClass('container');
+		$('#toggleWidth').text('Wide');
+	} else {
+		$('.container-maybe-fluid').removeClass('container').addClass('container-fluid');
+		$('#toggleWidth').text('Narrow');
+	}
+	return false;
+}
+
+function chooseParseType() {
+	$('#parse-control li').removeClass('active');
+	$(this).addClass('active');
+
+	var	parsetype = $('#parse-control li.active').attr('data-parse_type');
+	$('#parse-control .dropdown-toggle').text('Parse: ' + (parsetype || 'None'));
+
+	maybeLoadTrees();
+}
+
+function maybeLoadTrees() {
+	var	parsetype = $('#parse-control li.active').attr('data-parse_type');
+	if ( !parsetype ) {
+		$('#parse-container').hide();
+		return;
+	}
+	
+	$('#parse-container').show();
+
+	$('#image, #parse').text('loading...');
+	$.getJSON('display_ajax.php', {
+		action: 'display_parse',
+		entry: entry,
+		id: id,
+		type: parsetype
+	}, function (json) {
+		if (json.error)
+			return console.log('error');
+		$('#image, #parse').text('');
+		$('<img/>')
+			.attr('src', 'lib/phpsyntaxtree/stgraph.svg?data=' + json.imageData)
+			.attr('alt', 'Tree: ' + json.imageData)
+			.appendTo('#image');
+		$('#parse').text(json.tree);
+	});
+}
 
 $(document).ready(function() {
-	var id = $('#id').val(),
-	entry = $('#entry').val(),
-	tables = $('#tables').val();
+	$('.tabs').tabs();
+	$('.topbar').dropdown();
+	
+	id = $('input#id').val(),
+	entry = $('input#entry').val();
 
 	$(document.body).keyup(function onkeyup(e) {
 		var theChar = String.fromCharCode(e.keyCode);
@@ -32,20 +83,22 @@ $(document).ready(function() {
 			// @todo get_link.xml doesn't actually exist right now
 			var url = loc.replace(/display.php(.*)$/,'/get_link.xml.php');
 	
-			var data = {entry: entry, id: id, tables: tables};
+			var	parsetype = $('#parse-control li.active').attr('data-parse_type');
+	
+			var data = {entry: entry, id: id, parse_type: parsetype};
 			if (theChar === 'K')
 				data.next = 'yes';
 			else if(theChar === 'J')
 				data.previous = 'yes';
 	
 			if($('#random').val() === 'true')
-				ata = {random: 'yes', tables: tables};
+				ata = {random: 'yes', parse_type: parsetype};
 	
 			$.get(url, data, function(data) {
 				var link = $(data).find("link").eq(0);
 	
 				var queryString = $.param({
-					tables: tables,
+					parse_type: parsetype,
 					entry: link.attr("entry"),
 					id: link.attr("id")
 				});
@@ -89,27 +142,9 @@ $(document).ready(function() {
 		});
 	}
 	$('form').submit(submitData);
-	
-	function maybeLoadTrees() {
-		if ( !$('#container').is(':visible') )
-			return;
-	
-		$('#image, #parse').text('loading...');
-		$.getJSON('display_ajax.php', {
-			action: 'display_parse',
-			entry: entry,
-			id: id,
-			type: tables
-		}, function (json) {
-			if (json.error)
-				return console.log('error');
-			$('#image, #parse').text('');
-			$('<img/>')
-				.attr('src', 'lib/phpsyntaxtree/stgraph.svg?data=' + json.imageData)
-				.attr('alt', 'Tree: ' + json.imageData)
-				.appendTo('#image');
-			$('#parse').text(json.tree);
-		});
-	}
+
+	$('#parse-control li:not(.divider)').click(chooseParseType);
 	maybeLoadTrees();
+	
+	$('#toggleWidth').click(toggleWidth);
 });
