@@ -123,7 +123,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 </div>
 <div class="container container-maybe-fluid" id='container'>
 
-<div id='entry'><?php echo $text; ?></div>
+<div id='entry' class='well'><?php echo $text; ?></div>
 
 <form action="display.php?entry=<?php echo $entry; ?>&id=<?php echo $id; ?>&parse_type=<?php echo $parse_type . $debugExtra; ?>" method='POST'>
 
