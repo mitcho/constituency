@@ -161,14 +161,14 @@ foreach ($tags as $tag) {
 ?>
 	</ul>
 </div>
-<div class='span-one-third'>
+<!--<div class='span-one-third'>
 	<h4>Entry<h4>
 	<textarea name="entry_annotation" class='annotation'><?php echo $entryAnnotation; ?></textarea>
 </div>
 <div class='span-one-third'>
 	<h4>Link</h4>
 	<textarea name="link_annotation" class='annotation'><?php echo $linkAnnotation; ?></textarea>
-</div>
+</div>-->
 </div>
 
 <div class="well" style="min-height:40px;">
