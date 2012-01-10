@@ -34,10 +34,9 @@ function action_display_parse() {
 	
 	$text = $db->get_var(sprintf('select text from links where id = %d and entry = %d', $id, $entry));
 	$treePattern = getPattern($text);
-	$treePattern = '/\V*' . $treePattern . '\V*/';
+	$treePattern = '/\V*' . $treePattern . '\V*/'; // '/^.*' . $treePattern . '.*$/'
 
-	preg_match($treePattern, $parse, $match);
-	if( isset($match[0]) ) {
+	if( preg_match($treePattern, $parse, $match) && isset($match[0]) ) {
 		$tree = $match[0];
 		$results['imageData'] = str_replace('"', '\\"', formatParseTree($tree));
 	}
