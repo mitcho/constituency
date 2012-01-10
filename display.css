@@ -2,6 +2,10 @@ body {
 	padding-top: 60px;
 }
 
+.row {
+	margin-bottom: 20px;
+}
+
 #parse-container {
 	margin-bottom: 10px;
 }
@@ -29,12 +33,12 @@ body {
 	font-weight: bold;
 }
 
-.tag-label-machine {
-	color: gray;
-}
-
 a.desired-link {
 	color: red;
+}
+
+.annotation {
+	width: 95%;
 }
 
 #entry a {
@@ -44,4 +48,11 @@ a.desired-link {
 	padding: 20px;
 	background: #eee;
 	margin-bottom: 20px;
+}
+
+label.disabled span {
+	color: gray;
+}
+span.btn.submit {
+	margin-right: 10px;
 }

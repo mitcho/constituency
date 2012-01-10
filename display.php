@@ -76,7 +76,7 @@ $text = formatDisplayEntry($content, $text, $href);
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
-<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-twipsy.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <?php 
 if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
@@ -142,27 +142,46 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 </div>
 
 <div class='row'>
-<div class='span8'>
+<div class='span-one-third'>
 	<h4>Tags</h4>
+	<ul class='inputs-list'>
 <?php
-$tags = $db->get_results("select * from tags left join tags_xref on (tags.`id` = tags_xref.tid and entry = $entry and lid = $id) where human = 1 and parse_specific = 0");
+$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and entry = $entry and lid = $id) where parse_specific = 0");
 foreach ($tags as $tag) {
-	
+	$twipsy = '';
+	if ( $tag->user )
+		$twipsy = " data-placement='below' rel='twipsy' title='" . esc_attr($tag->user) . "'";
+	$disabled = ($tag->human == 1 ? '' : ' class="disabled" disabled="disabled"');
+	echo "<li><label $disabled><input $disabled type='checkbox' name='tags[{$tag->id}]' id='tag-{$tag->id}' " . ($tag->checked == 1 ? ' checked="checked"' : '') . "/> <span$twipsy>" . esc_html($tag->name) . "</span></label></li>";
 }
 ?>
+	</ul>
 </div>
-<div class='span4'>
+<div class='span-one-third'>
 	<h4>Entry<h4>
-	<textarea name="entry_annotation"><?php echo $entryAnnotation; ?></textarea>
+	<textarea name="entry_annotation" class='annotation'><?php echo $entryAnnotation; ?></textarea>
 </div>
-<div class='span4'>
+<div class='span-one-third'>
 	<h4>Link</h4>
-	<textarea name="link_annotation"><?php echo $linkAnnotation; ?></textarea>
+	<textarea name="link_annotation" class='annotation'><?php echo $linkAnnotation; ?></textarea>
 </div>
 </div>
 
-<div class="row">
-<div class="pull-right"><span id="before-submit"></span><input type="submit" id="submit" class='btn primary' value='Save!' /></div>
+<div class="well" style="min-height:40px;">
+<?php
+$verdict = $db->get_row("select * from link_constituency where id = $id and entry = $entry order by date desc limit 1");
+
+$constituency = $verdict ? $verdict->constituency : '';
+$modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) . " by {$verdict->user}" : '';
+
+?>
+<div class="pull-left">
+	<span class='btn submit large<?php if (!$verdict) echo ' success';?>' id='constituent'><?php if ($constituency == 'constituent') echo '&#x2714; '; ?>Constituent!</span>
+	<span class='btn submit large<?php if (!$verdict) echo ' danger';?>' id='not_constituent'><?php if ($constituency == 'not_constituent') echo '&#x2714; '; ?>Not constituent!</span>
+	<span class='btn submit small'>Just save tags and comments</span>
+	<p id='last_modified' style='display:inline'><small><?php echo esc_html($modified); ?></small></p>
+</div>
+<div class="pull-right"><span id="before-submit"></span></div>
 </div>
 
 <input type="hidden" id="random" value="<?php echo $random ? 'true' : 'false'; ?>" />

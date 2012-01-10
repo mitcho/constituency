@@ -1,5 +1,4 @@
 var tagKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-var optionKeys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
 var lastTimeout = null;
 var id, entry;
 
@@ -75,6 +74,7 @@ function maybeLoadTrees() {
 $(document).ready(function() {
 	$('.tabs').tabs();
 	$('.topbar').dropdown();
+	$('[rel=twipsy]').twipsy();
 	
 	id = $('input#id').val(),
 	entry = $('input#entry').val();
@@ -90,12 +90,6 @@ $(document).ready(function() {
 		var i = tagKeys.indexOf(theChar);
 		if(i > -1)
 			$('#tag-' + i).click();
-	
-		if( optionKeys.indexOf(theChar) > -1 ) {
-			var option = $('#option-' + theChar);
-			option.siblings().attr('selected',false);
-			option.attr('selected',true);
-		}
 	
 		if( theChar == 'K' || theChar == 'J' ) {
 			submit.click();
@@ -162,7 +156,12 @@ $(document).ready(function() {
 			lastTimeout = window.setTimeout(function() {beforeSubmit.text("");}, 3000);
 		});
 	}
-	$('form').submit(submitData);
+
+	// ignore the form
+	$('form').submit(function(e) {
+		e.preventDefault();
+		return false;
+	});
 
 	$('#parse-control li:not(.divider)').click(chooseParseType);
 	maybeLoadTrees();
