@@ -50,3 +50,39 @@ function action_display_parse() {
 	
 	echo json_encode($results);
 }
+
+function action_save() {
+	global $db, $entry, $id, $tags, $constituency;
+	
+	header('Content-type: application/json');
+	
+	if ( !isset($id) || !isset($entry) )
+		die -1;
+	
+	if ( !isset($tags) )
+		$tags = array();
+	foreach ($tags as $tag_id => $value) {
+		if ( $value === 'true' )
+			addTag($entry, $id, $tag_id);
+		else
+			delTag($entry, $id, $tag_id);
+	}
+	
+	if ( isset($constituency) && !empty($constituency) ) {
+		$db->insert('link_constituency', array(
+			'id' => $id,
+			'entry' => $entry,
+			'constituency' => $constituency,
+			'user' => USERNAME
+		), array('%d', '%d', '%s', '%s'));
+	
+		$verdict = $db->get_row("select * from link_constituency where id = $id and entry = $entry order by date desc limit 1");
+		$modified = 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) . " by {$verdict->user}";
+		
+		echo json_encode(array('constituency' => $verdict->constituency, 'modified' => $modified, 'tags' => count($tags) ));
+		exit;
+	}
+	
+	echo json_encode(array('tags' => count($tags)));
+	exit;
+}

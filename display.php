@@ -162,7 +162,7 @@ foreach ($tags as $tag) {
 	if ( $tag->user )
 		$twipsy = " data-placement='below' rel='twipsy' title='" . esc_attr($tag->user) . "'";
 	$disabled = ($tag->human == 1 ? '' : ' class="disabled" disabled="disabled"');
-	echo "<li><label $disabled><input $disabled type='checkbox' name='tags[{$tag->id}]' id='tag-{$tag->id}' " . ($tag->checked == 1 ? ' checked="checked"' : '') . "/> <span$twipsy>" . esc_html($tag->name) . "</span></label></li>";
+	echo "<li><label $disabled><input $disabled type='checkbox' name='tags[{$tag->id}]' data-tag='{$tag->id}' id='tag-{$tag->id}' " . ($tag->checked == 1 ? ' checked="checked"' : '') . "/> <span$twipsy>" . esc_html($tag->name) . "</span></label></li>";
 }
 ?>
 	</ul>
@@ -186,12 +186,12 @@ $modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) .
 
 ?>
 <div class="pull-left">
-	<span class='btn submit large<?php if (!$verdict) echo ' success';?>' id='constituent'><?php if ($constituency == 'constituent') echo '&#x2714; '; ?>Constituent!</span>
-	<span class='btn submit large<?php if (!$verdict) echo ' danger';?>' id='not_constituent'><?php if ($constituency == 'not_constituent') echo '&#x2714; '; ?>Not constituent!</span>
+	<span class='btn submit large<?php if (!$verdict) echo ' success'; if ($constituency == 'constituent') echo ' selected'; ?>' id='constituent'>Constituent! <span class='accelerator'>(C)</span></span>
+	<span class='btn submit large<?php if (!$verdict) echo ' danger'; if ($constituency == 'not_constituent') echo ' selected'; ?>' id='not_constituent'>Not constituent! <span class='accelerator'>(N)</span></span>
 	<span class='btn submit small'>Just save tags and comments</span>
 	<p id='last_modified' style='display:inline'><small><?php echo esc_html($modified); ?></small></p>
 </div>
-<div class="pull-right"><span id="before-submit"></span></div>
+<div class="pull-right"><span id="spinner" style='display:none'><img src='spinner.gif'/></span></div>
 </div>
 
 <input type="hidden" id="random" value="<?php echo $random ? 'true' : 'false'; ?>" />

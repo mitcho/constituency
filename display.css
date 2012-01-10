@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 body {
 	padding-top: 60px;
 }
@@ -57,4 +59,8 @@ label.disabled span {
 }
 span.btn.submit {
 	margin-right: 10px;
+}
+
+span.btn.selected:before {
+	content: '✔ ';
 }

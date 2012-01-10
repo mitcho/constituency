@@ -1,4 +1,3 @@
-var lastTimeout = null;
 var id, entry;
 
 function toggleWidth() {
@@ -117,38 +116,40 @@ $(document).ready(function() {
 		if( theChar == 'K' )
 			return window.location = $('#next').attr('href');
 	});
-	$('submit').focus();
 
-	function submitData(e) {
-		e.preventDefault();
-	
-		var beforeSubmit = $("#before-submit");
-		beforeSubmit.text("");
-	
-		var selectedOptions = $('option:selected').map(function(x,e) {return e.id});
-		// @todo data format is not currently correct.
-		var data = {
-			selectedOptions: selectedOptions
+	$('.submit').click(function() {
+		if ($('#spinner').is(':visible'))
+			return;
+
+		$('#spinner').show();
+		var tags_header = $('#tags').siblings('h4');
+		tags_header.find('label').remove();
+
+		data = { action: 'save', id: id, entry: entry };
+
+		// the constituency answer is the id of the button:
+		if (this.id) {
+			data.constituency = this.id;
 		}
 	
-		$.post($('form').attr('action'), data, function() {
-			beforeSubmit.text("Submitted! ");
-	
-			$("select option").each( function() {
-				var that = $(this),
-				label = that.text();
-				
-				if (label.charAt(0) === '*')
-					that.text(label.substr(1));
-				
-				if (that.is(':selected'))
-					that.text('*' + that.text());				
-			} );
-	
-			window.clearTimeout(lastTimeout);
-			lastTimeout = window.setTimeout(function() {beforeSubmit.text("");}, 3000);
-		});
-	}
+		tags = {};
+		$('#tags input:not(.disabled)').each(function() {
+			var input = $(this);
+			tags[input.attr('data-tag')] = !!input.attr('checked');
+		})
+		data.tags = tags;
+			
+		$.post('display_ajax.php', data, function(json) {
+			$('#spinner').hide();
+			if (json.modified) {
+				$('#last_modified small').text(json.modified);
+				$('.submit').removeClass('success danger selected');
+				$('#' + json.constituency).addClass('selected');
+			}
+			if (json.tags)
+				return tags_header.append(' <span class="label success fade in" style="margin-left: 5px;">saved tags!</span>');
+		}, 'json');
+	});
 
 	// ignore the form
 	$('form').submit(function(e) {
