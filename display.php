@@ -14,11 +14,84 @@ else
 $args = parseArgs(isset($argv) ? $argv : array());
 extract($args);
 
-$host = $_SERVER['HTTP_HOST'];
-$uri = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-
 $entry = (int) $entry;
 $id = (int) $id;
+
+// Update
+if ( $entry && isset($_POST) && !empty($_POST) ) {
+	$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
+	while($row = mysql_fetch_array($results))
+		$tags[$row['tid']]['enabled'] = true;
+
+	$constituency = mysql_real_escape_string($_POST['constituency']);
+	$failure_type = mysql_real_escape_string($_POST['failure_type']);
+	$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
+	$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
+
+	$q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
+	$q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
+	$q3 = true;
+	if($constituency != "constituent")
+		$q3 = mysql_query("update " . LINKS_TABLE . " set failure_type = '$failure_type', modified_by = '$user' where entry = $entry and id = $id");
+	if(!($q1 && $q2 && $q3))
+		echo mysql_error();
+	
+	$tids = array_keys($tags);
+	if(!isset($_POST['tags']))
+		$_POST['tags'] = array();
+	$checkedTags = $_POST['tags'];
+	foreach($tids as $tid) {
+		if(isset($checkedTags[$tid]) && !$tags[$tid]['enabled']) {
+			addTag($entry, $id, $tid);
+			$tags[$tid]['enabled'] = true;
+		}
+		else if(!isset($checkedTags[$tid]) && $tags[$tid]['enabled']) {
+			delTag($entry, $id, $tid);
+			$tags[$tid]['enabled'] = false;
+		}
+	}
+
+	// If that was an asynchronous update, end.
+	if(isset($_POST['async'])) {
+		echo "</body>\n</html>";
+		exit(0);
+	}
+}
+
+// default id is 0
+if ( empty($id) ) {
+	$id = 0;
+}
+
+// wait until updates are done to change $entry and $id
+if ( $random || ($id === 0 && empty($entry)) ) {
+	$results = $db->get_row( "select entry, id from " . LINKS_TABLE . " order by RAND() limit 1", ARRAY_A );
+	extract($results);
+	$random = 1;
+}
+
+$data = $db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A);
+
+// if can't find data
+if ( is_null($data) ) {
+	echo '<div class="alert-message error"><p>Could not find data. :(</p></div>';
+	echo '</div></body></html>';
+	exit;
+}
+
+extract($data);
+// @todo e.annotation, l.constituency, l.failure_type, l.lannotation
+//$constituency = $row['constituency'];
+//$failureType = $row['failure_type'];
+//$entryAnnotation = htmlspecialchars($row['annotation']);
+//$linkAnnotation = htmlspecialchars($row['lannotation']);
+
+$text = formatDisplayEntry($content, $text, $href);
+
+$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
+while($row = mysql_fetch_array($results))
+	$tags[$row['tid']]['enabled'] = true;
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -80,11 +153,6 @@ $constituencyValues = array("" => "Q", "constituent" => "W", "not_constituent" =
 $failureValues = array("" => "Y", "missing_before" => "U", "missing_after" => "I", "missing_before_after" => "O", "x_clausal" => "P");
 $tagKeys = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
 
-$skipNoLinkEntries = false;
-
-$text = "Error.";
-$constituency = "";
-$failureType = "";
 $tags = array();
 $tagged = array();
 
@@ -94,74 +162,6 @@ while($row = mysql_fetch_array($results))
 	                          'enabled' => false, 
 							  'human' => $row['human'] ? true : false);
 
-// default id is 0
-if ($entry !== '' && $id === '') {
-	$id = 0;
-}
-
-if ($id !== '' && $entry !== '') {
-	$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
-	while($row = mysql_fetch_array($results))
-		$tags[$row['tid']]['enabled'] = true;
-
-	// Update if we received new code.
-	if(isset($_POST) && count($_POST) > 0) {
-		$constituency = mysql_real_escape_string($_POST['constituency']);
-		$failure_type = mysql_real_escape_string($_POST['failure_type']);
-		$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
-		$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
-
-		$q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
-		$q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
-		$q3 = true;
-		if($constituency != "constituent")
-			$q3 = mysql_query("update " . LINKS_TABLE . " set failure_type = '$failure_type', modified_by = '$user' where entry = $entry and id = $id");
-		if(!($q1 && $q2 && $q3))
-			echo mysql_error();
-		
-		$tids = array_keys($tags);
-		if(!isset($_POST['tags']))
-			$_POST['tags'] = array();
-		$checkedTags = $_POST['tags'];
-		foreach($tids as $tid) {
-			if(isset($checkedTags[$tid]) && !$tags[$tid]['enabled']) {
-				addTag($entry, $id, $tid);
-				$tags[$tid]['enabled'] = true;
-			}
-			else if(!isset($checkedTags[$tid]) && $tags[$tid]['enabled']) {
-				delTag($entry, $id, $tid);
-				$tags[$tid]['enabled'] = false;
-			}
-		}
-	}
-
-	// If that was an asynchronous update, end.
-	if(isset($_POST['async'])) {
-		echo "</body>\n</html>";
-		exit(0);
-	}
-}
-
-// wait until updates are done to change $entry and $id
-if ($random) {
-	$results = $db->get_row( "select entry, id from " . LINKS_TABLE . " order by RAND() limit 1", ARRAY_A );
-	extract($results);
-}
-
-if ($id !== '' && $entry !== '') {
-	extract($db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A));
-	// @todo e.annotation, l.constituency, l.failure_type, l.lannotation
-	//$constituency = $row['constituency'];
-	//$failureType = $row['failure_type'];
-	//$entryAnnotation = htmlspecialchars($row['annotation']);
-	//$linkAnnotation = htmlspecialchars($row['lannotation']);
-
-	$text = formatDisplayEntry($content, $text, $href);
-	
-	$results = mysql_query("select tid from " . TAGS_TABLE . " where entry = $entry and lid = $id");
-	while($row = mysql_fetch_array($results))
-		$tags[$row['tid']]['enabled'] = true;
-}
 ?>
 
 <div id='entry'><?php echo $text; ?></div>
