@@ -18,26 +18,6 @@ $entry = (int) $entry;
 $id = (int) $id;
 $random_tag_label = '';
 
-// Update
-if ( $entry && isset($_POST) && !empty($_POST) ) {
-	$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
-	$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
-
-	// $q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
-	// $q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
-	$q3 = true;
-	if($constituency != "constituent")
-		$q3 = mysql_query("update " . LINKS_TABLE . " set failure_type = '$failure_type', modified_by = '$user' where entry = $entry and id = $id");
-	if(!($q1 && $q2 && $q3))
-		echo mysql_error();
-	
-	// If that was an asynchronous update, end.
-	if(isset($_POST['async'])) {
-		echo "</body>\n</html>";
-		exit(0);
-	}
-}
-
 // default id is 0
 if ( empty($id) ) {
 	$id = 0;
