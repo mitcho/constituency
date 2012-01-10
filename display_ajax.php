@@ -30,7 +30,8 @@ function action_display_parse() {
 		exit;
 	}
 	
-	$imageData = '';
+	$results = array('tree' => $parse);
+	
 	$text = $db->get_var(sprintf('select text from links where id = %d and entry = %d', $id, $entry));
 	$treePattern = getPattern($text);
 	$treePattern = '/\V*' . $treePattern . '\V*/';
@@ -38,11 +39,15 @@ function action_display_parse() {
 	preg_match($treePattern, $parse, $match);
 	if( isset($match[0]) ) {
 		$tree = $match[0];
-		$imageData = str_replace('"', '\\"', formatParseTree($tree));
+		$results['imageData'] = str_replace('"', '\\"', formatParseTree($tree));
 	}
 	
 	// format tree with tabs
 	$parse = trim(retabTree($parse, "  "));
 
-	echo json_encode(array('tree' => $parse, 'imageData' => $imageData));
+	$link_parse = $db->get_row(sprintf('select * from link_parses where id = %d and entry = %d and type = "%s"', $id, $entry, $type), ARRAY_A);
+	if ($link_parse)
+		$results['link_parse'] = $link_parse;
+	
+	echo json_encode($results);
 }

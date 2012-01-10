@@ -23,13 +23,11 @@ if ( $entry && isset($_POST) && !empty($_POST) ) {
 	while($row = mysql_fetch_array($results))
 		$tags[$row['tid']]['enabled'] = true;
 
-	$constituency = mysql_real_escape_string($_POST['constituency']);
-	$failure_type = mysql_real_escape_string($_POST['failure_type']);
 	$entry_annotation = mysql_real_escape_string($_POST['entry_annotation']);
 	$link_annotation = mysql_real_escape_string($_POST['link_annotation']);
 
-	$q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
-	$q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
+	// $q1 = mysql_query("update " . ENTRIES_TABLE . " set annotation = '$entry_annotation', modified_by = '$user' where id = $entry");
+	// $q2 = mysql_query("update " . LINKS_TABLE . " set constituency = '$constituency', lannotation = '$link_annotation', modified_by = '$user' where entry = $entry and id = $id");
 	$q3 = true;
 	if($constituency != "constituent")
 		$q3 = mysql_query("update " . LINKS_TABLE . " set failure_type = '$failure_type', modified_by = '$user' where entry = $entry and id = $id");
@@ -80,9 +78,7 @@ if ( is_null($data) ) {
 }
 
 extract($data);
-// @todo e.annotation, l.constituency, l.failure_type, l.lannotation
-//$constituency = $row['constituency'];
-//$failureType = $row['failure_type'];
+// @todo e.annotation, l.lannotation
 //$entryAnnotation = htmlspecialchars($row['annotation']);
 //$linkAnnotation = htmlspecialchars($row['lannotation']);
 
@@ -102,6 +98,7 @@ while($row = mysql_fetch_array($results))
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
 <script type="text/javascript" src="display.js"></script>
 <?php 
 if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
@@ -146,11 +143,9 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	</div>
   </div>
 </div>
-<div class="container-fluid container-maybe-fluid">
+<div class="container-fluid container-maybe-fluid" id='container'>
 <?php
 
-$constituencyValues = array("" => "Q", "constituent" => "W", "not_constituent" => "E", "multiple_constituents" => "R", "error" => "T");
-$failureValues = array("" => "Y", "missing_before" => "U", "missing_after" => "I", "missing_before_after" => "O", "x_clausal" => "P");
 $tagKeys = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
 
 $tags = array();
@@ -170,36 +165,35 @@ while($row = mysql_fetch_array($results))
 
 <div id='parse-container'>
 	<ul class="tabs">
-	<li class="active"><a href="#image">Image</a></li>
+	<li class="active"><a href="#classification">Classification</a></li>
+	<li><a href="#image">Tree</a></li>
 	<li><a href="#parse-box">Brackets</a></li>
 	</ul>
 	 
 	<div class="pill-content">
-	<div class="active" id="image"></div>
+	<div class="active" id="classification"></div>
+	<div id="image"></div>
 	<div id="parse-box"><textarea id="parse" rows="10" cols="30" name="stanford" wrap="off" spellcheck='false'></textarea></div>
 	</div>
 </div>
 
-<div id="annotation-box">
-<div>Entry: <input type="text" name="entry_annotation" value="<?php echo $entryAnnotation; ?>"/></div>
-<div>Link: <input type="text" name="link_annotation" value="<?php echo $linkAnnotation; ?>"/></div>
+<div class='row'>
+<div class='span8'>
+	<h4>Tags</h4>
+	<?php printTags($tags, $tagKeys); ?>
+</div>
+<div class='span4'>
+	<h4>Entry<h4>
+	<textarea name="entry_annotation"><?php echo $entryAnnotation; ?></textarea>
+</div>
+<div class='span4'>
+	<h4>Link</h4>
+	<textarea name="link_annotation"><?php echo $linkAnnotation; ?></textarea>
+</div>
 </div>
 
-<h3>Link Tags:</h3>
-<div id="tags-box">
-<div id="tags-padder">
-<?php printTags($tags, $tagKeys); ?>
-</div>
-</div>
-
-<div id="buttons">
-<select name="constituency" id="constituency_select">
-<?php generateOptions($constituencyValues, $constituency); ?>
-</select>
-<select name="failure_type" id="failure_select">
-<?php generateOptions($failureValues, $failureType); ?>
-</select>
-<span id="before-submit"></span><input type="submit" id="submit" class='btn primary' value='Save!' />
+<div class="row">
+<div class="pull-right"><span id="before-submit"></span><input type="submit" id="submit" class='btn primary' value='Save!' /></div>
 </div>
 
 <input type="hidden" id="random" value="<?php echo $random ? 'true' : 'false'; ?>" />

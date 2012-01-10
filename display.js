@@ -30,8 +30,6 @@ function maybeLoadTrees() {
 		$('#parse-container').hide();
 		return;
 	}
-	
-	$('#parse-container').show();
 
 	$('#image, #parse').text('loading...');
 	$.getJSON('display_ajax.php', {
@@ -40,14 +38,37 @@ function maybeLoadTrees() {
 		id: id,
 		type: parsetype
 	}, function (json) {
-		if (json.error)
-			return console.log('error');
 		$('#image, #parse').text('');
+		if (json.error) {
+			return $('<div class="alert-message warning fade in"><a class="close" href="#">×</a><p>No ' + parsetype + ' parse data available.</p></div>')
+				.prependTo('#container')
+				.alert();
+		}
+
+		$('#parse-container').show();
+		$('#image').empty();
 		$('<img/>')
 			.attr('src', 'lib/phpsyntaxtree/stgraph.svg?data=' + json.imageData)
 			.attr('alt', 'Tree: ' + json.imageData)
 			.appendTo('#image');
 		$('#parse').text(json.tree);
+		
+		if ( json.link_parse ) {
+			var classification = '<h2>' + json.link_parse.constituency + '</h2>';
+			if ( json.link_parse.error ) {
+				classification += '<p><strong>Error:</strong> ' + json.link_parse.error + '</p>';
+			}
+			if ( json.link_parse.failure_type ) {
+				classification += '<p><strong>Failure type:</strong> ' + json.link_parse.failure_type;
+				if ( json.link_parse.missing_node )
+					classification += ': ' + json.link_parse.missing_node;
+				classification += '</p>';
+			}
+			classification += '<p><strong>Immediately dominating node:</strong> ' + json.link_parse.immediate_node + '</p>';
+			classification += '<p><strong>Punctuation pass:</strong> ' + ( json.link_parse.punctuation_pass == '1' ? 'yes' : 'no' ) + '</p>';
+			classification += '<p><strong>Almost:</strong> ' + ( json.link_parse.almost == '1' ? 'yes' : 'no' ) + '</p>';
+			$('#classification').html(classification);
+		}
 	});
 }
 
@@ -87,9 +108,9 @@ $(document).ready(function() {
 	
 			var data = {entry: entry, id: id, parse_type: parsetype};
 			if (theChar === 'K')
-				data.next = 'yes';
+				json.next = 'yes';
 			else if(theChar === 'J')
-				data.previous = 'yes';
+				json.previous = 'yes';
 	
 			if($('#random').val() === 'true')
 				ata = {random: 'yes', parse_type: parsetype};

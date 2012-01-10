@@ -20,19 +20,6 @@ function formatDisplayEntry($content, $text, $href) {
 	return $text;
 }
 
-// Generates a list of <option> tags with the tag named $value starred.
-function generateOptions($optionKeys, $value) {
-	$names = array_keys($optionKeys);
-	foreach ($names as $name) {
-		echo "<option id=\"option-{$optionKeys[$name]}\" value=\"$name";
-		if($name == $value)
-			echo '" selected="selected">*';
-		else
-			echo '">';
-		echo "<span class=\"accelerator\">({$optionKeys[$name]})</span> $name</option>\n";
-	}
-}
-
 // Prints the tag checkboxes.
 function printTags($tags, $tagKeys) {
 	$tids = array_keys($tags);
