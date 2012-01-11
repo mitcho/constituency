@@ -82,6 +82,7 @@ $(document).ready(function() {
 	id = $('input#id').val(),
 	entry = $('input#entry').val();
 
+	var tags_header = $('#tags').siblings('h4');
 	var toggles = $('.inputs-list label:not(.disabled)').slice(0,9).each(function(i) {
 		$(this).children('span').prepend('<span class="accelerator">(' + (i + 1) + ')</span> ');
 	});
@@ -98,6 +99,8 @@ $(document).ready(function() {
 		if (theChar === (parseInt(theChar) + '')) {
 			var toggle = toggles.eq(parseInt(theChar) - 1).find('input');
 			toggle.attr('checked', !toggle.attr('checked'));
+			// remove any 'saved tags!' labels
+			tags_header.find('label').remove();
 			return;
 		}
 		
@@ -122,7 +125,6 @@ $(document).ready(function() {
 			return;
 
 		$('#spinner').show();
-		var tags_header = $('#tags').siblings('h4');
 		tags_header.find('label').remove();
 
 		data = { action: 'save', id: id, entry: entry };
