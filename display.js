@@ -83,9 +83,15 @@ $(document).ready(function() {
 	entry = $('input#entry').val();
 
 	var tags_header = $('#tags').siblings('h4');
-	var toggles = $('.inputs-list label:not(.disabled)').slice(0,9).each(function(i) {
-		$(this).children('span').prepend('<span class="accelerator">(' + (i + 1) + ')</span> ');
+	var toggles = $('.inputs-list label:not(.disabled)');
+	toggles.find('input').change(function() {
+		// remove any 'saved tags!' labels
+		tags_header.find('.label').remove();
 	});
+	// add accelerator labels to 1-9.
+	toggles.slice(0,9).each(function(i) {
+		$(this).children('span').prepend('<span class="accelerator">(' + (i + 1) + ')</span> ');
+	})
 
 	$(document.body).keyup(function onkeyup(e) {
 		var theChar = String.fromCharCode(e.keyCode);
@@ -99,8 +105,10 @@ $(document).ready(function() {
 		if (theChar === (parseInt(theChar) + '')) {
 			var toggle = toggles.eq(parseInt(theChar) - 1).find('input');
 			toggle.attr('checked', !toggle.attr('checked'));
+
 			// remove any 'saved tags!' labels
-			tags_header.find('label').remove();
+			tags_header.find('.label').remove();
+
 			return;
 		}
 		
@@ -125,7 +133,8 @@ $(document).ready(function() {
 			return;
 
 		$('#spinner').show();
-		tags_header.find('label').remove();
+		// remove 'saved tags!' labels
+		tags_header.find('.label').remove();
 
 		data = { action: 'save', id: id, entry: entry };
 
