@@ -97,6 +97,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 	  <ul class="nav">
 	  	<li<?php if ( !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
 		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random<?php echo $random_tag_label; ?></a></li>
+	  	<li><a href='history.php' title='User history'>History</a></li>
 	  </ul>
 	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
 	  <ul class='nav secondary-nav'>
