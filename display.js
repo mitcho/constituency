@@ -115,11 +115,15 @@ $(document).ready(function() {
 		if (theChar == 'R')
 			return window.location = $('#random-link').attr('href');
 	
-		if (theChar == 'C')
-			return $('#constituent').click();
+		if (theChar == 'C') {
+			submit('constituent', moveForward);
+			//return $('#constituent').click();
+		}
 
-		if (theChar == 'N')
-			return $('#not_constituent').click();
+		if (theChar == 'N') {
+			submit('not_constituent', moveForward);
+			//return $('#not_constituent').click();
+		}
 
 		if( theChar == 'J' )
 			return window.location = $('#prev').attr('href');
@@ -127,8 +131,14 @@ $(document).ready(function() {
 		if( theChar == 'K' )
 			return window.location = $('#next').attr('href');
 	});
+	
+	function moveForward() {
+		window.location = ($('#random').val() == 'true') ?
+			$('#random-link').attr('href') :
+			$('#next').attr('href');
+	}
 
-	$('.submit').click(function() {
+	function submit(constituency, callback) {
 		if ($('#spinner').is(':visible'))
 			return;
 
@@ -138,10 +148,11 @@ $(document).ready(function() {
 
 		data = { action: 'save', id: id, entry: entry };
 
+		if (constituency)
+			data.constituency = constituency;
 		// the constituency answer is the id of the button:
-		if (this.id) {
+		else if (this.id)
 			data.constituency = this.id;
-		}
 	
 		tags = {};
 		$('#tags input:not(.disabled)').each(function() {
@@ -158,9 +169,12 @@ $(document).ready(function() {
 				$('#' + json.constituency).addClass('selected');
 			}
 			if (json.tags)
-				return tags_header.append(' <span class="label success fade in" style="margin-left: 5px;">saved tags!</span>');
+				tags_header.append(' <span class="label success fade in" style="margin-left: 5px;">saved tags!</span>');
+			if ( typeof callback === 'function' )
+				callback();
 		}, 'json');
-	});
+	}
+	$('.submit').click(submit);
 
 	// ignore the form
 	$('form').submit(function(e) {
