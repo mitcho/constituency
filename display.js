@@ -150,9 +150,6 @@ $(document).ready(function() {
 
 		if (constituency)
 			data.constituency = constituency;
-		// the constituency answer is the id of the button:
-		else if (this.id)
-			data.constituency = this.id;
 	
 		tags = {};
 		$('#tags input:not(.disabled)').each(function() {
@@ -174,7 +171,9 @@ $(document).ready(function() {
 				callback();
 		}, 'json');
 	}
-	$('.submit').click(submit);
+	$('.submit').click(function () {
+		submit(this.id);
+	});
 
 	// ignore the form
 	$('form').submit(function(e) {
