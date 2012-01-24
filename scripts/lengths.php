@@ -8,6 +8,7 @@ $entry = <<<HTML
 HTML;
 
 $link = 'the chats were pure fantasy';
+$url = 'http://dailynews.yahoo.com/h/zd/19991207/tc/19991207034.html';
 
 $split = <<<HTML
 <a href="http://www.sjmercury.com/svtech/news/coverage/aff092299.htm">If you've seen Patrick Naughton's (former Infoseek Exec) FBI affidavit before,</a> you can see that when he was arrested, he turned over his laptop, admitting to having numerous kiddie porn images on it, and he knew the person he chatted with was a woman (since they spoke to each other on the phone several times).
