@@ -1,6 +1,6 @@
 <?php
 
-// Replace the <<<LINK...\nLINK; annotations in the db
+// Compute and populate sentence_length and link_length
 
 // Provides common judgement functions
 include("../functions.php");
