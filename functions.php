@@ -1049,7 +1049,7 @@ function splitSentences($text) {
 	  2 => array("pipe", "w") // stderr is a pipe that the child will write to
 	);
 
-	$process = proc_open("./tokenizer -S -E '' -L en-u8 -P -n", $descriptorspec, $pipes, getcwd() . "/lib/tokenizer-1.0");
+	$process = proc_open("./tokenizer -S -E '' -L en-u8 -P -n", $descriptorspec, $pipes, dirname(__FILE__) . "/lib/tokenizer-1.0");
 
 	$output = "";
 
