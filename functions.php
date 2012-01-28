@@ -1073,6 +1073,35 @@ function splitSentences($text) {
 		return false;
 }
 
+function countWords($html) {
+	$text = strip_tags($html);
+	$text = preg_replace("!(\w)'(\w)!", '\1\2', $text);
+	$text = preg_replace("!(\d)[-,.](\d)!", '\1\2', $text);
+	$text = preg_replace("!^\W!", '', $text);
+	$text = preg_replace("!\W$!", '', $text);
+	$words = preg_split('!\W+!', trim($text));
+	return count($words);
+}
+
+function getLengths($entry, $link, $url) {
+	$result = array('sentence' => false);
+	$result['link'] = countWords($link);
+	
+	$split = splitSentences($entry);
+	
+	$esc_link = preg_quote($link);
+	$esc_url = preg_quote($url);
+	$regex = "!<a href=['\"]{$esc_url}['\"]>{$esc_link}</a>!";
+	foreach ( explode("\n", $split) as $sentence ) {
+		if ( !preg_match($regex, $sentence, $matches) )
+			continue;
+		$result['sentence'] = countWords($sentence);	
+		break;
+	}
+	
+	return $result;
+}
+
 // Returns an array of command-line and GET arguments, parsed.
 // Possible arguments which are omitted are false in the array.
 // Return value is guaranteed to be sanitized.
