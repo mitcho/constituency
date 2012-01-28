@@ -25,7 +25,7 @@ if (isset($_SERVER['argv'][2]))
 
 // Pick out the data from the database
 $limit = $start && $end ? "entry >= $start and entry <= $end and " : '';
-$links = $db->get_results("select l.id, l.entry, l.text, l.href, e.content from links as l join entries as e on l.entry = e.id where {$limit} l.sentence_length is null ORDER BY entry asc, id asc");
+$links = $db->get_results("select l.id, l.entry, l.text, l.href, e.content from links as l join entries as e on l.entry = e.id where {$limit} (l.sentence_length is null or l.sentence_length = 0) ORDER BY entry asc, id asc");
 
 foreach ( $links as $link ) {
 	// For each row in the retrieved data...
