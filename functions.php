@@ -1086,8 +1086,12 @@ function getLengths($entry, $link, $url) {
 	$result = array('sentence' => false);
 	$result['link'] = countWords($link);
 	
-	$split = splitSentences(wp_kses_data($entry));
-	
+	$entry = htmlspecialchars_decode(wp_kses_data($entry));
+	$entry = iconv('UTF-8', 'ASCII//TRANSLIT', $entry); // straighten quotes, etc.
+	$split = splitSentences($entry);
+
+	$link = htmlspecialchars_decode(wp_kses_data($link));	
+	$link = iconv('UTF-8', 'ASCII//TRANSLIT', $link); // straighten quotes, etc.	
 	$esc_link = preg_quote(trim($link), '!');
 	$esc_url = preg_quote($url, '!');
 	$esc_link = preg_replace('!\s!', '\s', $esc_link);
