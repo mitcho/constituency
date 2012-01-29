@@ -1,17 +1,19 @@
 <?php
 
-function formatDisplayEntry($content, $text, $href) {
-	$prePattern = preg_quote($href) . '\V+' . preg_quote($text);
-	$prePattern = preg_replace("!(/)!", '\/', $prePattern);
-	$pattern = '/\V*' . $prePattern . '\V*/';
-	preg_match($pattern, $content, $match);
-	if(isset($match[0]))
+function formatDisplayEntry($content, $text, $url) {
+	$content = splitSentences($content);
+	$esc_link = preg_quote(trim($text), '!');
+	$esc_url = preg_quote($url, '!');
+	$esc_link = preg_replace('!\s!', '\s', $esc_link);
+	$esc_link = str_replace('\.', '\.(\n?)', $esc_link);
+	$regex = "!^.*<a href=['\"]{$esc_url}['\"]>\s*{$esc_link}\s*</a>.*$!im";
+
+	preg_match($regex, $content, $match);
+	if (isset($match[0]))
 		$text = $match[0];
 
 	// make the desired link colored.
-	$aPattern = '<a href=["\']' . preg_quote($href) . '["\']';
-	$aPattern = preg_replace("!(/)!", '\/', $aPattern);
-	$text = preg_replace("/$aPattern/", '$0 class="desired-link"', $text);
+	$text = preg_replace("!<a href=[\"']{$esc_url}[\"']!", '$0 class="desired-link"', $text);
 
 	// process text slightly to remove unsightly things
 	$text = trim($text);

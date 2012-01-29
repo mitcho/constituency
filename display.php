@@ -57,7 +57,7 @@ extract($data);
 //$entryAnnotation = htmlspecialchars($row['annotation']);
 //$linkAnnotation = htmlspecialchars($row['lannotation']);
 
-$text = formatDisplayEntry(wp_kses_data($content), $text, $href);
+$text = formatDisplayEntry(wp_kses_data($content), $text, str_replace('&', '&amp;', $href));
 
 ?>
 <!DOCTYPE html>
