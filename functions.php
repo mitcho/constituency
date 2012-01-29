@@ -1089,24 +1089,15 @@ function getLengths($entry, $link, $url) {
 	
 	$split = splitSentences($entry);
 	
-	$esc_link = preg_quote($link);
-	$esc_url = preg_quote($url);
-	$regex = "!<a href=['\"]{$esc_url}['\"]>\s*{$esc_link}\s*</a>!i";
-	foreach ( explode("\n", $split) as $sentence ) {
-		if ( !preg_match($regex, $sentence, $matches) )
-			continue;
-		$result['sentence'] = countWords($sentence);	
-		break;
-	}
-	
-	// try again looking across sentences
-	if ( !$result['sentence'] ) {
-		$esc_link = preg_replace('!\s!', '\s', $esc_link);
-		$regex = "!^.*<a href=['\"]{$esc_url}['\"]>\s*{$esc_link}\s*</a>.*$!im";
-		if (preg_match($regex, $split, $matches))
-			$result['sentence'] = countWords($matches[0]);
-	}
-	
+	$esc_link = preg_quote(trim($link), '!');
+	$esc_url = preg_quote($url, '!');
+	$esc_link = preg_replace('!\s!', '\s', $esc_link);
+	$esc_link = str_replace('\.', '\.(\n?)', $esc_link);
+
+	$regex = "!^.*<a href=['\"]{$esc_url}['\"]>\s*{$esc_link}\s*</a>.*$!im";
+	if ( preg_match($regex, $split, $matches) )
+		$result['sentence'] = countWords($matches[0]);
+
 	return $result;
 }
 
