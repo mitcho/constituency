@@ -9,8 +9,7 @@ include('backpress/functions.kses.php');
 
 $allowedtags = array(
 	'a' => array(
-		'href' => array (),
-		'title' => array ()),
+		'href' => array ()), // rm 'title' attribute
 	'abbr' => array(
 		'title' => array ()),
 	'acronym' => array(
@@ -1087,7 +1086,7 @@ function getLengths($entry, $link, $url) {
 	$result = array('sentence' => false);
 	$result['link'] = countWords($link);
 	
-	$split = splitSentences($entry);
+	$split = splitSentences(wp_kses_data($entry));
 	
 	$esc_link = preg_quote(trim($link), '!');
 	$esc_url = preg_quote($url, '!');
