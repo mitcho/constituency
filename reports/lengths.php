@@ -30,12 +30,12 @@ group by sentence_length, link_length
 having links > 0");
 
 echo "sentence_length\tlink_length\tactual\texpected\n";
+
+bcscale(40);
 foreach ( $dist as $cell ) {
 	// computed expected number
-	// echo "P(n-word constituent in m-word sentence) = " . (C(n - m) / C(n - 1)) . "\n";
-	bcscale(40);
-//	var_dump($cell->sentence_length - 1, C($cell->sentence_length - 1));
-	$p = bcdiv(C($cell->sentence_length - $cell->link_length), C($cell->sentence_length - 1));
+	// P(n-word constituent in m-word sentence) = (C(n - m) / C(n - 1))
+	$p = bcdiv( bcmul(C($cell->sentence_length - $cell->link_length), C($cell->link_length - 1)), C($cell->sentence_length - 1) );
 	$expected = bcmul($p, $cell->links);
 	
 	$line = array((int) $cell->sentence_length, (int) $cell->link_length, (int) $cell->constituents, $expected);
