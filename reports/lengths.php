@@ -34,7 +34,7 @@ echo "sentence_length\tlink_length\tactual\texpected\n";
 bcscale(40);
 foreach ( $dist as $cell ) {
 	// computed expected number
-	// P(n-word constituent in m-word sentence) = (C(n - m) / C(n - 1))
+	// P(n-word constituent in m-word sentence) = (C(m - n) * C(n - 1) / C(m - 1))
 	$p = bcdiv( bcmul(C($cell->sentence_length - $cell->link_length), C($cell->link_length - 1)), C($cell->sentence_length - 1) );
 	$expected = bcmul($p, $cell->links);
 	
