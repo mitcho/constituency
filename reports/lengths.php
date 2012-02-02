@@ -32,6 +32,9 @@ having links > 0");
 echo "sentence_length\tlink_length\tactual\texpected\n";
 
 bcscale(40);
+// $mindiff = 1;
+$i = 0;
+$fudge_factor = 0.01;
 foreach ( $dist as $cell ) {
 	// computed expected number
 	// P(n-word constituent in m-word sentence) = (C(m - n) * C(n - 1) / C(m - 1))
@@ -39,6 +42,18 @@ foreach ( $dist as $cell ) {
 	$expected = bcmul($p, $cell->links);
 	
 	$line = array((int) $cell->sentence_length, (int) $cell->link_length, (int) $cell->constituents, $expected);
+	
+	// if actual = expected, add the fudge factor to one side or the other.
+	if ( (float) $cell->constituents === (float) $expected )
+		if ( ($i++)%2 )
+			$line[2] += $fudge_factor / $i;
+		else
+			$line[3] += $fudge_factor / $i;		
+	
+	// Calculation of mindiff, the minimum meaningful difference between the actual and expected.
+	// This came out to be 0.0356 with Sample 1000
+//	if ( (float) $cell->constituents !== (float) $expected )
+//		$mindiff = min($mindiff, abs((float) $cell->constituents - (float) $expected) );
 	echo join("\t", $line) . "\n";
 }
 
