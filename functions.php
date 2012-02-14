@@ -150,7 +150,7 @@ function isPossibleParse($text, $tree) {
 function prepHTMLForParser($text) {
 
 	// Remove HTML entities and replace them with the corresponding symbols
-	$text = html_entity_decode($text, ENT_NOQUOTES, "UTF-8");
+	$text = html_entity_decode($text, ENT_QUOTES, "UTF-8");
 
 	$text = preg_replace('!<br\s*/?>!i',"\n",$text);
 	
@@ -841,6 +841,8 @@ function parseStanford($text, $format = 'penn') {
 	}
 	if ($format == 'words')
 		return join(" ", $results);
+	if ($format == 'wordsAndTags')
+		return join("\n", $results);		
 }
 
 // Split tokenization off into a new function - really, they're separate things.
