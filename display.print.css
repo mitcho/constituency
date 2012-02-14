@@ -2,3 +2,15 @@
 .topbar {
 	display: none;
 }
+
+body {
+	font-size: 20px;
+}
+
+ol {
+	margin-left: 50px;
+}
+
+li {
+	line-height: 26px;
+}
