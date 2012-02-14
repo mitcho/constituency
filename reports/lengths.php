@@ -34,7 +34,7 @@ echo "sentence_length\tlink_length\tactual\texpected\n";
 bcscale(40);
 // $mindiff = 1;
 $i = 0;
-$fudge_factor = 0.01;
+$fudge_factor = 0; //0.01
 foreach ( $dist as $cell ) {
 	// computed expected number
 	// P(n-word constituent in m-word sentence) = (C(m - n) * C(n - 1) / C(m - 1))
