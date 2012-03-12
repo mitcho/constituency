@@ -122,7 +122,12 @@ function nav($type, $subtype = false) {
 		<li class="divider-vertical"></li>
 
 		<?php if ( $type == 'display' ): ?>
-	  	<li<?php if ( $type == 'display' && !$random ) echo " class='active'";?>><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>#<?php echo $entry; ?>:<?php echo $id; ?></a></li>
+		<li class="dropdown"<?php if ( $type == 'display' && !$random ) echo " class='active'";?>>
+			<a class="dropdown-toggle" href="#">#<?php echo $entry; ?>:<?php echo $id; ?></a>
+			<ul class="dropdown-menu">
+				<li><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>Permalink</a></li>
+				<li><a href='<?php echo esc_url("http://metafilter.com/$entry"); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>on MetaFilter</a></li>
+			</ul>			
 	  	<?php endif; ?>
 	  	
 		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random<?php echo $random_tag_label; ?></a></li>
