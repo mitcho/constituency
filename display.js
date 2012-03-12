@@ -1,16 +1,5 @@
 var id, entry;
 
-function toggleWidth() {
-	if ($('.container-maybe-fluid.container-fluid').length) {
-		$('.container-maybe-fluid').removeClass('container-fluid').addClass('container');
-		$('#toggleWidth').text('Wide');
-	} else {
-		$('.container-maybe-fluid').removeClass('container').addClass('container-fluid');
-		$('#toggleWidth').text('Narrow');
-	}
-	return false;
-}
-
 function chooseParseType() {
 	$('#parse-control li').removeClass('active');
 	$(this).addClass('active');
@@ -75,10 +64,6 @@ $(document).ready(function() {
 	// always hide next/prev immediately.
 	$(document).scrollTop($('#entry').offset().top - 60);
 
-	$('.tabs').tabs();
-	$('.topbar').dropdown();
-	$('[rel=twipsy]').twipsy();
-	
 	id = $('input#id').val(),
 	entry = $('input#entry').val();
 
@@ -183,6 +168,4 @@ $(document).ready(function() {
 
 	$('#parse-control li:not(.divider)').click(chooseParseType);
 	maybeLoadTrees();
-	
-	$('#toggleWidth').click(toggleWidth);
 });
