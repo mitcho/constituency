@@ -16,6 +16,9 @@ function setupFilters() {
 			else
 				value = $(this).val();
 			$.cookie(this.id, value, { date: 365 });
+
+			if ( this.id == 'filter_tag' || this.id == 'filter_constituency' )
+				window.location.reload();
 		});
 	})
 }
