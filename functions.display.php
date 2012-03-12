@@ -61,7 +61,7 @@ function randomLink() {
 	if ( $filter_tag ) {
 		$sql = "select tags_xref.entry, tags_xref.lid as id from tags_xref";
 		if ( $filter_constituency == 'unjudged' )
-			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.lid = lc.id) where lc.constituency is null and tid = {$filter_tag}";
+			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.lid = lc.id and tid = {$filter_tag}) where lc.constituency is null";
 		else
 			$sql .= " where tid = {$filter_tag}";
 	}
