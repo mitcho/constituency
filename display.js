@@ -1,6 +1,6 @@
 var id, entry;
 
-var filters = ['move_forward', 'filter_tag'];
+var filters = ['move_forward', 'filter_tag', 'filter_constituency'];
 function setupFilters() {
 	$.each(filters, function( i, x ) {
 		var value = $.cookie(x);

@@ -1,7 +1,7 @@
 <?php
 include('functions.php');
-include('functions.display.php');
 include('connect_mysql.php');
+include('functions.display.php');
 
 // Comment out to avoid errors, etc. if not in debug mode.
 $debug = isset($_GET['debug']);
@@ -16,27 +16,10 @@ extract($args);
 
 $entry = (int) $entry;
 $id = (int) $id;
-$random_tag_label = '';
 
-// default id is 0
-if ( empty($id) ) {
-	$id = 0;
-}
-
-// wait until updates are done to change $entry and $id
-$filter_tag = (int) $_COOKIE['filter_tag'];
-if ( $random && $filter_tag ) {
-	$results = $db->get_row( "select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid) where tid = {$filter_tag} order by RAND() limit 1", ARRAY_A );
-	extract($results);
-
-	$random_tag = $db->get_var( "select name from tags where id = {$filter_tag}" );
-	$random_tag_label = " ($random_tag)";
-}
-
-if ( ($id === 0 && empty($entry)) || ($random && empty($random_tag_label)) ) {
-	$results = $db->get_row( "select entry, id from " . LINKS_TABLE . " order by RAND() limit 1", ARRAY_A );
-	extract($results);
-	$random = 'true';
+if ( empty($id) || empty($entry) || $random ) {
+	header('Location: ' . randomLink());
+	exit;
 }
 
 $data = $db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A);
@@ -139,12 +122,19 @@ $modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) .
 <input type="hidden" id="parse_type" value="<?php echo $parse_type; ?>" />
 </form>
 
-<input type="checkbox" id="move_forward"/>
+
+Auto-advance: <input type="checkbox" id="move_forward"/>
 <select id="filter_tag">
 	<option value="0">No filter</option>
 <?php foreach ( $db->get_results("select * from tags where parse_specific = 0") as $tag ):?>
 	<option value="<?php echo esc_attr($tag->id); ?>"><?php echo esc_html($tag->name); ?></option>
 <?php endforeach; ?>
+</select>
+<select id="filter_constituency">
+	<option value="0">No filter</option>
+	<option value="constituent">Constituent</option>
+	<option value="not_constituent">Not constituent</option>
+	<option value="unjudged">Unjudged</option>
 </select>
 
 </div><!--/container-->

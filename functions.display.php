@@ -1,5 +1,21 @@
 <?php
 
+$filter_tag = intval( &$_COOKIE['filter_tag'] );
+$filter_tag_label = '';
+if ( $filter_tag )
+	$filter_tag_label = $db->get_var( "select name from tags where id = {$filter_tag}" );
+
+$filter_constituency_labels = array(
+	'0' => false,
+	'constituent' => 'constituent',
+	'not_constituent' => 'not constituent',
+	'unjudged' => 'unjudged'
+);
+$filter_constituency = &$_COOKIE['filter_constituency'];
+if ( !isset($filter_constituency_labels[$filter_constituency]) )
+	$filter_constituency = '0';
+$filter_constituency_label = $filter_constituency_labels[$filter_constituency];
+
 function formatDisplayEntry($content, $text, $url) {
 	$content = splitSentences($content);
 	$esc_link = preg_quote(trim($text), '!');
@@ -35,21 +51,32 @@ function permalink($entry, $id) {
 	return 'display.php?' . http_build_query($args);
 }
 
-function randomLink($random) {
-	if (!$random)
-		$random = 'true'; // just for randomLink purposes
-	$args = array('random' => $random);
+function randomLink() {
+	global $db, $filter_tag, $filter_constituency;
+
+	$sql = "select links.entry, links.id from links";
+	if ( $filter_tag )
+		$sql .= " join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid and tid = {$filter_tag})";
+	if ( $filter_constituency && $filter_constituency != 'unjudged' )
+		$sql .= " join (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc on (links.entry = lc.entry and links.id = lc.id and lc.constituency = '$filter_constituency')";
+	if ( $filter_constituency == 'unjudged' )
+		$sql .= " left join (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc on (links.entry = lc.entry and links.id = lc.id) where (lc.constituency is null or lc.constituency = '')";
+	$sql .= " order by RAND() limit 1";
+
+	// @todo what happens when the result is nothing?
+
+	$args = $db->get_row( $sql, ARRAY_A );
+	if ( empty($args) )
+		return '#';
 	if ( isset($_GET['debug']) )
 		$args['debug'] = 1;
-	if ( isset($_GET['tables']) )
-		$args['tables'] = $_GET['tables'];
 	
 	return 'display.php?' . http_build_query($args);
 }
 
 // $dir == 'next' or 'prev'
-function getNextPrevLink( $entry, $id, $dir, $filter_tag = false ) {
-	global $db;
+function getNextPrevLink( $entry, $id, $dir ) {
+	global $db, $filter_tag;
 	
 	$compare = $dir == 'next' ? '>' : '<';
 	$order = $compare == '>' ? 'asc' : 'desc';
@@ -108,7 +135,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 }
 
 function nav($type, $subtype = false) {
-	global $random, $id, $entry, $random_tag_label, $parse_type, $db;
+	global $random, $id, $entry, $filter_tag_label, $filter_constituency_label, $parse_type, $db;
 ?>
 <div class="topbar">
   <div class="topbar-inner">
@@ -116,30 +143,42 @@ function nav($type, $subtype = false) {
 	  <a class="brand" href="http://constituency.mit.edu/">&lt;a&gt;constituent&lt;/a&gt;</a>
 
 	  <ul class="nav">
-		<li class="dropdown"<?php if ( $type == 'reports' ) echo " class='active'";?>>
+
+		<?php if ( $type == 'display' ): ?>
+		<li class="dropdown active">
+			<a class="dropdown-toggle" href="#">#<?php echo $entry; ?>:<?php echo $id; ?></a>
+			<ul class="dropdown-menu">
+				<!--<li><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>Permalink</a></li>-->
+				<li><a href='<?php echo esc_url("http://metafilter.com/$entry"); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>on MetaFilter</a></li>
+				<li class="divider"></li>
+				<li><a id='random-link' href="<?php echo randomLink(); ?>">Random <span class="accelerator">(R)</span></a></li>
+			</ul>
+		</li>
+		<?php else: ?>		
+	  	<li><a href='display.php' title='Judgement'>Judgement</a></li>
+		<?php endif; ?>
+
+		<li class="dropdown<?php if ( $type == 'reports' ) echo " active";?>">
 			<a class="dropdown-toggle" href="#">Reports</a>
 			<ul class="dropdown-menu">
 				<li<?php if ( $type == 'reports' && $subtype == 'nonconstituents' ) echo ' class="active"'; ?>><a href="nonconstituents.php">Nonconstituents</a></li>
 			</ul>
 		</li>
 	  	<li<?php if ( $type == 'history' ) echo " class='active'";?>><a href='history.php' title='User history'>History</a></li>
-
-		<li class="divider-vertical"></li>
-
-		<?php if ( $type == 'display' ): ?>
-		<li class="dropdown<?php if ( !$random ) echo " active";?>">
-			<a class="dropdown-toggle" href="#">#<?php echo $entry; ?>:<?php echo $id; ?></a>
-			<ul class="dropdown-menu">
-				<li><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>Permalink</a></li>
-				<li><a href='<?php echo esc_url("http://metafilter.com/$entry"); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>on MetaFilter</a></li>
-			</ul>
-		</li>	
-	  	<?php endif; ?>
-	  	
-		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random<?php echo $random_tag_label; ?></a></li>
 	  </ul>
 
-	  <p class="pull-left">Logged in as <?php echo USERNAME; ?></p>
+	  <p class="pull-left">
+	  <?php 
+	  $filters = array();
+	  if ( $filter_tag_label )
+	  	$filters[] = $filter_tag_label;
+	  if ( $filter_constituency_label )
+	  	$filters[] = $filter_constituency_label;
+	  
+	  if ( $type == 'display' && !empty($filters) )
+		echo "<span class='label' style='margin-right: 10px;'>" . join(', ', $filters) . "</span>";
+	  ?>
+	  Logged in as <?php echo USERNAME; ?></p>
 
 	  <ul class='nav secondary-nav'>
 <?php if ( $type == 'display' ): ?>

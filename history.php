@@ -1,7 +1,7 @@
 <?php
 include('functions.php');
-include('functions.display.php');
 include('connect_mysql.php');
+include('functions.display.php');
 
 // Comment out to avoid errors, etc. if not in debug mode.
 $debug = isset($_GET['debug']);
