@@ -103,6 +103,7 @@ function head($type, $title) {
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-twipsy.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-modal.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <?php if ( file_exists("$type.js") ) {
 	echo "<script type='text/javascript' src='$type.js'></script>";
@@ -112,6 +113,7 @@ $(function() {
 	$('.tabs').tabs();
 	$('.topbar').dropdown();
 	$('[rel=twipsy], a').twipsy();
+	$('.modal').modal({backdrop: true, keyboard: true});
 });
 </script>
 <?php 
@@ -175,8 +177,12 @@ function nav($type, $subtype = false) {
 	  if ( $filter_constituency_label )
 	  	$filters[] = $filter_constituency_label;
 	  
-	  if ( $type == 'display' && !empty($filters) )
-		echo "<span class='label' style='margin-right: 10px;'>" . join(', ', $filters) . "</span>";
+		if ( $type == 'display' ) {
+			if ( !empty($filters) )
+				echo "<span class='label' data-controls-modal='options' style='margin-right: 10px;'>" . join(', ', $filters) . "</span>";
+			else
+				echo "<span class='label' data-controls-modal='options' style='margin-right: 10px;'>set options</span>";				
+		}
 	  ?>
 	  Logged in as <?php echo USERNAME; ?></p>
 
