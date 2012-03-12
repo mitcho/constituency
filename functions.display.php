@@ -57,11 +57,19 @@ function randomLink() {
 	$sql = "select links.entry, links.id from links";
 	if ( $filter_tag )
 		$sql .= " join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid and tid = {$filter_tag})";
-	if ( $filter_constituency && $filter_constituency != 'unjudged' )
-		$sql .= " join (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc on (links.entry = lc.entry and links.id = lc.id and lc.constituency = '$filter_constituency')";
 	if ( $filter_constituency == 'unjudged' )
-		$sql .= " left join (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc on (links.entry = lc.entry and links.id = lc.id) where (lc.constituency is null or lc.constituency = '')";
+		$sql .= " left join link_constituency as lc on (links.entry = lc.entry and links.id = lc.id) where (lc.constituency is null)";
+		
+	if ( $filter_constituency && $filter_constituency != 'unjudged' ) {
+		$sql = "select * from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc";
+		if ( $filter_tag )
+			$sql .= " join tags_xref on (lc.entry = tags_xref.entry and lc.id = tags_xref.lid and tid = {$filter_tag})";
+		$sql .= " where lc.constituency = '$filter_constituency'";
+	}
+
 	$sql .= " order by RAND() limit 1";
+	global $random_sql;
+	$random_sql = $sql;
 
 	// @todo what happens when the result is nothing?
 

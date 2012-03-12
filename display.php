@@ -14,13 +14,13 @@ else
 $args = parseArgs(isset($argv) ? $argv : array());
 extract($args);
 
-$entry = (int) $entry;
-$id = (int) $id;
-
-if ( empty($id) || empty($entry) || $random ) {
+if ( !isset($id) || !isset($entry) || $random ) {
 	header('Location: ' . randomLink());
 	exit;
 }
+
+$entry = (int) $entry;
+$id = (int) $id;
 
 $data = $db->get_row("select content, text, href from entries as e join links as l on e.id = l.entry where e.id = $entry and l.id = $id", ARRAY_A);
 
