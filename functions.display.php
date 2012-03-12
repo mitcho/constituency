@@ -55,10 +55,16 @@ function randomLink() {
 	global $db, $filter_tag, $filter_constituency;
 
 	$sql = "select links.entry, links.id from links";
-	if ( $filter_tag )
-		$sql .= " join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid and tid = {$filter_tag})";
 	if ( $filter_constituency == 'unjudged' )
-		$sql .= " left join link_constituency as lc on (links.entry = lc.entry and links.id = lc.id) where (lc.constituency is null)";
+		$sql .= " left join link_constituency as lc on (links.entry = lc.entry and links.id = lc.id) where lc.constituency is null";
+
+	if ( $filter_tag ) {
+		$sql = "select tags_xref.entry, tags_xref.lid as id from tags_xref";
+		if ( $filter_constituency == 'unjudged' )
+			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.lid = lc.id) where lc.constituency is null and tid = {$filter_tag}";
+		else
+			$sql .= " where tid = {$filter_tag}";
+	}
 		
 	if ( $filter_constituency && $filter_constituency != 'unjudged' ) {
 		$sql = "select * from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc";
