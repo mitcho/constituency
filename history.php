@@ -50,15 +50,26 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
   </div>
 </div>
 
+<style>
+body { counter-reset: item; }
+li { display: block }
+li:before { content: counters(item, ".") ". "; counter-increment: item }
+</style>
+
 <div class="container" id='container'>
 <?php
 // @todo can't I just order and then group to get the latest constituency values for each, instead of subselect?
 $links = $db->get_results('select * from (select lc.entry, lc.id, date, text, constituency from link_constituency as lc left join links as l on (lc.entry = l.entry and lc.id = l.id) where user = "'.USERNAME.'" order by date desc) as t group by entry, id order by date desc');
-?>
 
-<?php if (is_array($links)): ?>
+$lasttime = false;
+if (is_array($links)): ?>
 <ol>
-<?php foreach ($links as $link): ?>
+<?php foreach ($links as $link): 
+	// if there was more than 10 min since the last,
+	if ( $lasttime && abs($lasttime - strtotime($link->date)) > 60*15 )
+		echo "</ol><ol>";
+	$lasttime = strtotime($link->date);
+?>
 	<li><a href='display.php?entry=<?php echo (int) $link->entry; ?>&id=<?php echo (int) $link->id; ?>' data-placement='below' rel='twipsy' title='<?php echo esc_attr($link->date); ?>'>#<?php echo (int) $link->entry; ?>:<?php echo (int) $link->id; ?></a>: "...<?php echo $link->text; ?>..."</li>
 <?php endforeach; ?>
 </ol>
