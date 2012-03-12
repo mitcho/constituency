@@ -24,17 +24,13 @@ if ( empty($id) ) {
 }
 
 // wait until updates are done to change $entry and $id
-if ( $random && is_numeric($random) ) {
-	$random = (int) $random;
+$filter_tag = (int) $_COOKIE['filter_tag'];
+if ( $random && $filter_tag ) {
+	$results = $db->get_row( "select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid) where tid = {$filter_tag} order by RAND() limit 1", ARRAY_A );
+	extract($results);
 
-	$random_tag = $db->get_var( "select name from tags where id = {$random}" );
-	// if the tag exists
-	if ( $random_tag ) {
-		$results = $db->get_row( "select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid) where tid = {$random} order by RAND() limit 1", ARRAY_A );
-		extract($results);
-		
-		$random_tag_label = " ($random_tag)";
-	}
+	$random_tag = $db->get_var( "select name from tags where id = {$filter_tag}" );
+	$random_tag_label = " ($random_tag)";
 }
 
 if ( ($id === 0 && empty($entry)) || ($random && empty($random_tag_label)) ) {
@@ -69,8 +65,8 @@ $text = formatDisplayEntry(wp_kses_data($content), $text, str_replace('&', '&amp
 
 <div class="row" id="nextprev">
 <?php
-$prev = getNextPrevLink($entry, $id, 'prev');
-$next = getNextPrevLink($entry, $id, 'next');
+$prev = getNextPrevLink($entry, $id, 'prev', $filter_tag);
+$next = getNextPrevLink($entry, $id, 'next', $filter_tag);
 ?>
 <div class="pull-left <?php if (!$prev) echo ' disabled';?>"><a id='prev' href="<?php echo esc_url($prev);?>">&larr; Previous <span class='accelerator'>(J)</span></a></div>
 <div class="pull-right <?php if (!$next) echo ' disabled';?>"><a id='next' href="<?php echo esc_url($next);?>"><span class='accelerator'>(K)</span> Next &rarr;</a></div>
@@ -131,7 +127,7 @@ $modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) .
 <div class="pull-left">
 	<span class='btn submit large<?php if (!$verdict) echo ' success'; if ($constituency == 'constituent') echo ' selected'; ?>' id='constituent'>Constituent! <span class='accelerator'>(C)</span></span>
 	<span class='btn submit large<?php if (!$verdict) echo ' danger'; if ($constituency == 'not_constituent') echo ' selected'; ?>' id='not_constituent'>Not constituent! <span class='accelerator'>(N)</span></span>
-	<span class='btn submit small'>Just save tags and comments</span>
+	<span class='btn submit small'>Just save tags <span class='accelerator'>(S)</span></span>
 	<p id='last_modified' style='display:inline'><small><?php echo esc_html($modified); ?></small></p>
 </div>
 <div class="pull-right"><span id="spinner" style='display:none'><img src='spinner.gif'/></span></div>
@@ -142,6 +138,14 @@ $modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) .
 <input type="hidden" id="id" value="<?php echo $id; ?>" />
 <input type="hidden" id="parse_type" value="<?php echo $parse_type; ?>" />
 </form>
+
+<input type="checkbox" id="move_forward"/>
+<select id="filter_tag">
+	<option value="0">No filter</option>
+<?php foreach ( $db->get_results("select * from tags where parse_specific = 0") as $tag ):?>
+	<option value="<?php echo esc_attr($tag->id); ?>"><?php echo esc_html($tag->name); ?></option>
+<?php endforeach; ?>
+</select>
 
 </div><!--/container-->
 </body>

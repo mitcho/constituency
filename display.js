@@ -1,5 +1,25 @@
 var id, entry;
 
+var filters = ['move_forward', 'filter_tag'];
+function setupFilters() {
+	$.each(filters, function( i, x ) {
+		var value = $.cookie(x);
+		if ( $('#' + x).is('[type=checkbox]') )
+			$('#' + x).attr( 'checked', !!value );
+		else
+			$('#' + x).val( value );
+			
+		$('#' + x).change(function() {
+			var value = false;
+			if ( $(this).is('[type=checkbox]') )
+				value = !!$(this).attr( 'checked' );
+			else
+				value = $(this).val();
+			$.cookie(this.id, value, { date: 365 });
+		});
+	})
+}
+
 function chooseParseType() {
 	$('#parse-control li').removeClass('active');
 	$(this).addClass('active');
@@ -100,15 +120,14 @@ $(document).ready(function() {
 		if (theChar == 'R')
 			return window.location = $('#random-link').attr('href');
 	
-		if (theChar == 'C') {
-			submit('constituent', moveForward);
-			//return $('#constituent').click();
-		}
+		if (theChar == 'C')
+			submit('constituent');
 
-		if (theChar == 'N') {
-			submit('not_constituent', moveForward);
-			//return $('#not_constituent').click();
-		}
+		if (theChar == 'N')
+			submit('not_constituent');
+
+		if (theChar == 'S')
+			submit(false);
 
 		if( theChar == 'J' )
 			return window.location = $('#prev').attr('href');
@@ -123,7 +142,7 @@ $(document).ready(function() {
 			$('#next').attr('href');
 	}
 
-	function submit(constituency, callback) {
+	function submit(constituency) {
 		if ($('#spinner').is(':visible'))
 			return;
 
@@ -152,8 +171,8 @@ $(document).ready(function() {
 			}
 			if (json.tags)
 				tags_header.append(' <span class="label success fade in" style="margin-left: 5px;">saved tags!</span>');
-			if ( typeof callback === 'function' )
-				callback();
+			if ( $('#move_forward').attr('checked') )
+				moveForward();
 		}, 'json');
 	}
 	$('.submit').click(function () {
@@ -168,4 +187,6 @@ $(document).ready(function() {
 
 	$('#parse-control li:not(.divider)').click(chooseParseType);
 	maybeLoadTrees();
+	
+	setupFilters();
 });

@@ -48,12 +48,16 @@ function randomLink($random) {
 }
 
 // $dir == 'next' or 'prev'
-function getNextPrevLink( $entry, $id, $dir ) {
+function getNextPrevLink( $entry, $id, $dir, $filter_tag = false ) {
 	global $db;
 	
 	$compare = $dir == 'next' ? '>' : '<';
 	$order = $compare == '>' ? 'asc' : 'desc';
-	$result = $db->get_row("select entry, id from " . LINKS_TABLE . " where entry $compare $entry or (entry = $entry and id $compare $id) order by entry $order, id $order limit 1");
+	$filter_tag = (int) $filter_tag;
+	if ( $filter_tag )
+		$result = $db->get_row("select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid and tags_xref.tid = $filter_tag) where links.entry $compare $entry or (links.entry = $entry and id $compare $id) order by links.entry $order, id $order limit 1");
+	else
+		$result = $db->get_row("select entry, id from links where entry $compare $entry or (entry = $entry and id $compare $id) order by entry $order, id $order limit 1");
 
 	if ( $result === false || empty($result) )
 		return false;
@@ -72,6 +76,7 @@ function head($type, $title) {
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-alerts.js"></script>
 <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-twipsy.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
 <?php if ( file_exists("$type.js") ) {
 	echo "<script type='text/javascript' src='$type.js'></script>";
 } ?>
@@ -122,12 +127,13 @@ function nav($type, $subtype = false) {
 		<li class="divider-vertical"></li>
 
 		<?php if ( $type == 'display' ): ?>
-		<li class="dropdown"<?php if ( $type == 'display' && !$random ) echo " class='active'";?>>
+		<li class="dropdown<?php if ( !$random ) echo " active";?>">
 			<a class="dropdown-toggle" href="#">#<?php echo $entry; ?>:<?php echo $id; ?></a>
 			<ul class="dropdown-menu">
 				<li><a href='<?php echo esc_url(permalink($entry, $id)); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>Permalink</a></li>
 				<li><a href='<?php echo esc_url("http://metafilter.com/$entry"); ?>' title='<?php echo esc_attr("Entry #$entry, link #$id"); ?>'>on MetaFilter</a></li>
-			</ul>			
+			</ul>
+		</li>	
 	  	<?php endif; ?>
 	  	
 		<li<?php if ( $random ) echo " class='active'";?>><a id='random-link' href="<?php echo randomLink($random); ?>"><span class="accelerator">(R)</span> Random<?php echo $random_tag_label; ?></a></li>
