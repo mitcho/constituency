@@ -65,7 +65,7 @@ $lasttime = false;
 if (is_array($links)): ?>
 <ol>
 <?php foreach ($links as $link): 
-	// if there was more than 10 min since the last,
+	// if there was more than 15 min since the last,
 	if ( $lasttime && abs($lasttime - strtotime($link->date)) > 60*15 )
 		echo "</ol><ol>";
 	$lasttime = strtotime($link->date);
