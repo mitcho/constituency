@@ -140,8 +140,10 @@ $(document).ready(function() {
 	});
 	
 	function moveForward() {
-		window.location = $('#random-link').attr('href');
-		//$('#next').attr('href')
+		if ( $('#move_forward').val() == 'random' )
+			window.location = $('#random-link').attr('href');
+		if ( $('#move_forward').val() == 'next' )
+			window.location = $('#next').attr('href');
 	}
 
 	function submit(constituency) {
@@ -173,8 +175,7 @@ $(document).ready(function() {
 			}
 			if (json.tags)
 				tags_header.append(' <span class="label success fade in" style="margin-left: 5px;">saved tags!</span>');
-			if ( $('#move_forward').attr('checked') )
-				moveForward();
+			moveForward();
 		}, 'json');
 	}
 	$('.submit').click(function () {

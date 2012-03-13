@@ -230,7 +230,11 @@ function nav($type, $subtype = false) {
   </div>
   <div class="modal-body">
 	<div class='clearfix'>
-	Auto-advance: <input type="checkbox" id="move_forward"/>
+	Auto-advance: <select id="move_forward">
+		<option value="off">off</option>
+		<option value="random">random</option>
+		<option value="next">next</option>
+	</select>
 	</div>
 
 	<div class='clearfix'>
