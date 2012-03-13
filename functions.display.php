@@ -51,8 +51,8 @@ function permalink($entry, $id) {
 	return 'display.php?' . http_build_query($args);
 }
 
-function randomLink() {
-	global $db, $filter_tag, $filter_constituency;
+function filterSql() {
+	global $db, $filter_tag, $filter_constituency, $filter_sql;
 
 	$sql = "select links.entry, links.id from links";
 	if ( $filter_constituency == 'unjudged' )
@@ -61,7 +61,7 @@ function randomLink() {
 	if ( $filter_tag ) {
 		$sql = "select tags_xref.entry, tags_xref.lid as id from tags_xref";
 		if ( $filter_constituency == 'unjudged' )
-			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.lid = lc.id and tid = {$filter_tag}) where lc.constituency is null";
+			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.lid = lc.id and tid = {$filter_tag}) where lc.constituency is null and tid = {$filter_tag}";
 		else
 			$sql .= " where tid = {$filter_tag}";
 	}
@@ -72,16 +72,21 @@ function randomLink() {
 			$sql .= " join tags_xref on (lc.entry = tags_xref.entry and lc.id = tags_xref.lid and tid = {$filter_tag})";
 		$sql .= " where lc.constituency = '$filter_constituency'";
 	}
+	$filter_sql = $sql;
+	
+	return $sql;
+}
 
+function randomLink() {
+	global $db;
+
+	$sql = filterSql();
 	$sql .= " order by RAND() limit 1";
-	global $random_sql;
-	$random_sql = $sql;
-
-	// @todo what happens when the result is nothing?
 
 	$args = $db->get_row( $sql, ARRAY_A );
 	if ( empty($args) )
 		return '#';
+
 	if ( isset($_GET['debug']) )
 		$args['debug'] = 1;
 	
