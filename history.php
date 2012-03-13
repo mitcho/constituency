@@ -25,7 +25,11 @@ else
 <div class="container" id='container'>
 <?php
 // @todo can't I just order and then group to get the latest constituency values for each, instead of subselect?
-$links = $db->get_results('select * from (select lc.entry, lc.id, date, text, constituency from link_constituency as lc left join links as l on (lc.entry = l.entry and lc.id = l.id) where user = "'.USERNAME.'" order by date desc) as t group by entry, id order by date desc');
+$username = USERNAME;
+if ( (USERNAME == 'mitcho' || USERNAME == 'mitcho@mit.edu') && isset($_GET['username']) )
+	$username = $_GET['username'];
+
+$links = $db->get_results($db->prepare('select * from (select lc.entry, lc.id, date, text, constituency from link_constituency as lc left join links as l on (lc.entry = l.entry and lc.id = l.id) where user = %s order by date desc) as t group by entry, id order by date desc', $username));
 
 $lasttime = false;
 if (is_array($links)): 
@@ -60,7 +64,7 @@ if (is_array($links)):
 		$total_count += $group['count'];
 	}
 	
-	echo "<div><h3>Time spent judging:</h3><p>" . ($total_time / 60) . "s</p><h3>Average time to judge:</h3><p>" . ($total_time / $total_count / 60) . "s</p></div>";
+	echo "<div><h3>Time spent judging:</h3><p>" . round($total_time / 60, 1) . "m</p><h3>Average time to judge:</h3><p>" . round($total_time / $total_count, 1) . "s</p></div>";
 ?>
 <ol class='history'>
 <?php foreach ($links as $link): 
