@@ -140,9 +140,8 @@ $(document).ready(function() {
 	});
 	
 	function moveForward() {
-		window.location = ($('#random').val() == 'true') ?
-			$('#random-link').attr('href') :
-			$('#next').attr('href');
+		window.location = $('#random-link').attr('href');
+		//$('#next').attr('href')
 	}
 
 	function submit(constituency) {
