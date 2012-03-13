@@ -28,13 +28,46 @@ else
 $links = $db->get_results('select * from (select lc.entry, lc.id, date, text, constituency from link_constituency as lc left join links as l on (lc.entry = l.entry and lc.id = l.id) where user = "'.USERNAME.'" order by date desc) as t group by entry, id order by date desc');
 
 $lasttime = false;
-if (is_array($links)): ?>
+if (is_array($links)): 
+
+	$groups = array();
+	$group_count = 0;
+	$group_start_time = false;
+	$last_time = false;
+	foreach ($links as $link) {
+		$new_time = strtotime($link->date);
+		if ( $last_time && abs($last_time - $new_time) > 60*10 ) {
+			// record the last group, which ended at last_time
+			$groups[] = array(
+				'time' => abs($last_time - $group_start_time),
+				'count' => $group_count
+			);
+			$group_count = 0;
+			$group_start_time = false;
+		}
+			
+		$group_count++;
+		$last_time = $new_time;
+		if ( !$group_start_time )
+			$group_start_time = $last_time;
+	}
+	
+	// compute average judging speed:
+	$total_time = 0;
+	$total_count = 0;
+	foreach ( $groups as $group ) {
+		$total_time += $group['time'];
+		$total_count += $group['count'];
+	}
+	
+	echo "<div><h3>Time spent judging:</h3><p>" . ($total_time / 60) . "s</p><h3>Average time to judge:</h3><p>" . ($total_time / $total_count / 60) . "s</p></div>";
+?>
 <ol class='history'>
 <?php foreach ($links as $link): 
 	// if there was more than 15 min since the last,
-	if ( $lasttime && abs($lasttime - strtotime($link->date)) > 60*15 )
+	if ( $last_time && abs($last_time - strtotime($link->date)) > 60*15 )
 		echo "</ol><ol class='history'>";
-	$lasttime = strtotime($link->date);
+	$last_time = strtotime($link->date);
 ?>
 	<li><a href='display.php?entry=<?php echo (int) $link->entry; ?>&id=<?php echo (int) $link->id; ?>' data-placement='below' rel='twipsy' title='<?php echo esc_attr($link->date); ?>'>#<?php echo (int) $link->entry; ?>:<?php echo (int) $link->id; ?></a>: "...<?php echo $link->text; ?>..."</li>
 <?php endforeach; ?>
