@@ -54,23 +54,23 @@ function permalink($entry, $id) {
 function filterSql() {
 	global $db, $filter_tag, $filter_constituency, $filter_sql;
 
-	$sql = "select links.entry, links.id from links";
+	$sql = "select base.entry, base.id from links as base";
 	if ( $filter_constituency == 'unjudged' )
-		$sql .= " left join link_constituency as lc on (links.entry = lc.entry and links.id = lc.id) where lc.constituency is null";
+		$sql .= " left join link_constituency as lc on (base.entry = lc.entry and base.id = lc.id) where lc.constituency is null";
 
 	if ( $filter_tag ) {
-		$sql = "select tags_xref.entry, tags_xref.id as id from tags_xref";
+		$sql = "select base.entry, base.id as id from tags_xref as base";
 		if ( $filter_constituency == 'unjudged' )
-			$sql .= " left join link_constituency as lc on (tags_xref.entry = lc.entry and tags_xref.id = lc.id and tid = {$filter_tag}) where lc.constituency is null and tid = {$filter_tag}";
+			$sql .= " left join link_constituency as lc on (base.entry = lc.entry and base.id = lc.id and tid = {$filter_tag}) where lc.constituency is null and tid = {$filter_tag}";
 		else
 			$sql .= " where tid = {$filter_tag}";
 	}
 		
 	if ( $filter_constituency && $filter_constituency != 'unjudged' ) {
-		$sql = "select lc.entry, lc.id from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc";
+		$sql = "select base.entry, base.id from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as base";
 		if ( $filter_tag )
-			$sql .= " join tags_xref on (lc.entry = tags_xref.entry and lc.id = tags_xref.id and tid = {$filter_tag})";
-		$sql .= " where lc.constituency = '$filter_constituency'";
+			$sql .= " join tags_xref on (base.entry = tags_xref.entry and base.id = tags_xref.id and tid = {$filter_tag})";
+		$sql .= " where base.constituency = '$filter_constituency'";
 	}
 	$filter_sql = $sql;
 	
@@ -101,7 +101,7 @@ function getNextPrevLink( $entry, $id, $dir ) {
 	$order = $compare == '>' ? 'asc' : 'desc';
 
 	$sql = filterSql();
-//	$sql .= " and base.entry $compare $entry or (base.entry = $entry and base.id $compare $id) order by base.entry $order, base.id $order limit 1";
+	$sql .= " and base.entry $compare $entry or (base.entry = $entry and base.id $compare $id) order by base.entry $order, base.id $order limit 1";
 
 	$result = $db->get_row( $sql );
 
