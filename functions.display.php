@@ -67,7 +67,7 @@ function filterSql() {
 	}
 		
 	if ( $filter_constituency && $filter_constituency != 'unjudged' ) {
-		$sql = "select * from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc";
+		$sql = "select lc.entry, lc.id from (select * from (select * from link_constituency order by date desc) as raw_lc group by entry, id) as lc";
 		if ( $filter_tag )
 			$sql .= " join tags_xref on (lc.entry = tags_xref.entry and lc.id = tags_xref.lid and tid = {$filter_tag})";
 		$sql .= " where lc.constituency = '$filter_constituency'";
@@ -95,15 +95,15 @@ function randomLink() {
 
 // $dir == 'next' or 'prev'
 function getNextPrevLink( $entry, $id, $dir ) {
-	global $db, $filter_tag;
+	global $db;
 	
 	$compare = $dir == 'next' ? '>' : '<';
 	$order = $compare == '>' ? 'asc' : 'desc';
-	$filter_tag = (int) $filter_tag;
-	if ( $filter_tag )
-		$result = $db->get_row("select links.entry, links.id from links join tags_xref on (links.entry = tags_xref.entry and links.id = tags_xref.lid and tags_xref.tid = $filter_tag) where links.entry $compare $entry or (links.entry = $entry and id $compare $id) order by links.entry $order, id $order limit 1");
-	else
-		$result = $db->get_row("select entry, id from links where entry $compare $entry or (entry = $entry and id $compare $id) order by entry $order, id $order limit 1");
+
+	$sql = filterSql();
+//	$sql .= " and base.entry $compare $entry or (base.entry = $entry and base.id $compare $id) order by base.entry $order, base.id $order limit 1";
+
+	$result = $db->get_row( $sql );
 
 	if ( $result === false || empty($result) )
 		return false;
