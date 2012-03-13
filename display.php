@@ -116,7 +116,6 @@ $modified = $verdict ? 'Modified: ' . date('Y-m-d', strtotime($verdict->date)) .
 <div class="pull-right"><span id="spinner" style='display:none'><img src='spinner.gif'/></span></div>
 </div>
 
-<input type="hidden" id="random" value="<?php echo $random ? 'true' : 'false'; ?>" />
 <input type="hidden" id="entry" value="<?php echo $entry; ?>" />
 <input type="hidden" id="id" value="<?php echo $id; ?>" />
 <input type="hidden" id="parse_type" value="<?php echo $parse_type; ?>" />
