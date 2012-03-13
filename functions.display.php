@@ -222,5 +222,37 @@ function nav($type, $subtype = false) {
 	</div>
   </div>
 </div>
+
+<div class="modal fade" id="options">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Options</h3>
+  </div>
+  <div class="modal-body">
+	<div class='clearfix'>
+	Auto-advance: <input type="checkbox" id="move_forward"/>
+	</div>
+
+	<div class='clearfix'>
+	Filters:
+	<select id="filter_tag">
+		<option value="0">No filter</option>
+	<?php foreach ( $db->get_results("select * from tags where parse_specific = 0") as $tag ):?>
+		<option value="<?php echo esc_attr($tag->id); ?>"><?php echo esc_html($tag->name); ?></option>
+	<?php endforeach; ?>
+	</select>
+	<select id="filter_constituency">
+		<option value="0">No filter</option>
+		<option value="constituent">Constituent</option>
+		<option value="not_constituent">Not constituent</option>
+		<option value="unjudged">Unjudged</option>
+	</select>
+	</div>
+  </div>
+  <!--<div class="modal-footer">
+    <a href="#" class="btn btn-primary">Save changes</a>
+    <a href="#" class="btn">Close</a>
+  </div>-->
+</div>
 <?php
 }
