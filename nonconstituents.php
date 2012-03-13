@@ -23,7 +23,7 @@ $links = $db->get_results('select basic.*, group_concat(tags_xref.tid) as tag_id
 left join links as l on (lc.entry = l.entry and lc.id = l.id)
 join entries as e on (e.id = l.entry)
 order by date desc) as t group by entry, id having constituency = "not_constituent") as basic
-left join tags_xref on (basic.entry = tags_xref.entry and basic.id = tags_xref.lid)
+left join tags_xref on (basic.entry = tags_xref.entry and basic.id = tags_xref.id)
 left join tags on (tags.id = tags_xref.tid)
 group by basic.entry, basic.id');
 ?>

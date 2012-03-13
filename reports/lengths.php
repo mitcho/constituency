@@ -19,7 +19,7 @@ if (isset($_SERVER['argv'][1]))
 	$tag = (int) $_SERVER['argv'][1];
 
 // Pick out the data from the database
-$join = $tag ? " join tags_xref on (links.id = tags_xref.lid and links.entry = tags_xref.entry and tags_xref.tid = $tag)" : '';
+$join = $tag ? " join tags_xref on (links.id = tags_xref.id and links.entry = tags_xref.entry and tags_xref.tid = $tag)" : '';
 $dist = $db->get_results("select sentence_length, link_length, count(constituency) as links, sum(constituency = 'constituent') as constituents
 from links {$join}
 left join

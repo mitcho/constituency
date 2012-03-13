@@ -34,7 +34,7 @@ if (empty($constituency)) {
 		'results' => array_map($tree ? 'withTreeHandler' : 'withoutTreeHandler', $results)));
 	
 } else {
-	$sql = "select group_concat(l.id) as lids, e.id, e.stanford, e.content from " . LINKS_TABLE . " as l join " . ENTRIES_TABLE . " as e on (l.entry = e.id) left join " . TAGS_TABLE . " as t on (l.id = t.lid and l.entry = t.entry) where constituency = '{$constituency}' and e.id >= {$start} and e.id <= " . ($end);
+	$sql = "select group_concat(l.id) as lids, e.id, e.stanford, e.content from " . LINKS_TABLE . " as l join " . ENTRIES_TABLE . " as e on (l.entry = e.id) left join " . TAGS_TABLE . " as t on (l.id = t.id and l.entry = t.entry) where constituency = '{$constituency}' and e.id >= {$start} and e.id <= " . ($end);
 
 	// TODO: make this an option to opt-out:
 	$forced_constituent = "(t.tid is not null and t.tid in (4,5,6,7))";

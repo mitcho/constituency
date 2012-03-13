@@ -78,7 +78,7 @@ $next = getNextPrevLink($entry, $id, 'next', $filter_tag);
 	<h4>Tags</h4>
 	<ul class='inputs-list' id='tags'>
 <?php
-$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and entry = $entry and lid = $id) where parse_specific = 0");
+$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where parse_specific = 0");
 foreach ($tags as $tag) {
 	$twipsy = '';
 	if ( $tag->user )

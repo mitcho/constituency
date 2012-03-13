@@ -51,7 +51,7 @@ if ( stristr($_SERVER['HTTP_HOST'], 'mit.edu') !== false ):?>
 <?php
 
 // Post-tagging setup:
-$joined_tables = LINKS_TABLE . " as l left join " . TAGS_TABLE . " as t on ((l.id = t.lid || 0 = t.lid) and l.entry = t.entry)";
+$joined_tables = LINKS_TABLE . " as l left join " . TAGS_TABLE . " as t on ((l.id = t.id || 0 = t.id) and l.entry = t.entry)";
 $forced_constituent = "(t.tid is not null and t.tid in (4,5,6,7))";
 $forced_error = "(t.tid is not null and t.tid in (1,3))";
 $distinct_count = "count(distinct concat(l.id, '-',l.entry))";

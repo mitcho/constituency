@@ -54,7 +54,7 @@ function annotate( $ids, $tag ) {
 			$values[] = "($tag_id, $split[0], $split[1])";
 	}
 	
-	mysql_query( "insert into " . TAGS_TABLE . " (tid, entry, lid) values " . implode(',', $values) . ' on duplicate key update tid = tid' );
+	mysql_query( "insert into " . TAGS_TABLE . " (tid, entry, id) values " . implode(',', $values) . ' on duplicate key update tid = tid' );
 }
 
 function getEntryLinkID( $entry, $linkText ) {

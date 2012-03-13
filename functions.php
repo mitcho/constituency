@@ -1180,11 +1180,11 @@ function parseArgs($argv) {
 // Add a tag to the cross-reference table.
 function addTag($entry, $id, $tid, $type = 'human', $user = USERNAME) {
 	global $db;
-	$db->insert(TAGS_TABLE, array('tid' => $tid, 'entry' => $entry, 'lid' => $id, 'type' => $type, 'user' => $user), array('%d', '%d', '%d', '%s', '%s'));
+	$db->insert(TAGS_TABLE, array('tid' => $tid, 'entry' => $entry, 'id' => $id, 'type' => $type, 'user' => $user), array('%d', '%d', '%d', '%s', '%s'));
 }
 
 // Remove a tag from the cross-reference table.
 function delTag($entry, $id, $tid) {
 	global $db;
-	$db->query("delete from " . TAGS_TABLE . " where tid = $tid and entry = $entry and lid = $id");
+	$db->query("delete from " . TAGS_TABLE . " where tid = $tid and entry = $entry and id = $id");
 }
