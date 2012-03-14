@@ -162,7 +162,7 @@ $(document).ready(function() {
 			data.constituency = constituency;
 	
 		tags = {};
-		$('#tags input:not(.disabled)').each(function() {
+		$('.tag-list input:not(.disabled)').each(function() {
 			var input = $(this);
 			tags[input.attr('data-tag')] = !!input.attr('checked');
 		})
