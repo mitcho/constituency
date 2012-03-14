@@ -78,12 +78,27 @@ $next = getNextPrevLink($entry, $id, 'next', $filter_tag);
 	<h4>Tags</h4>
 	<ul class='inputs-list' id='tags'>
 <?php
-$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where parse_specific = 0");
+$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where parse_specific = 0 and constituency_specific is null");
 foreach ($tags as $tag) {
 	$twipsy = '';
 	if ( $tag->user )
 		$twipsy = " data-placement='below' rel='twipsy' title='" . esc_attr($tag->user) . "'";
 	$disabled = ($tag->human == 1 ? '' : ' class="disabled" disabled="disabled"');
+	echo "<li><label $disabled><input $disabled type='checkbox' name='tags[{$tag->id}]' data-tag='{$tag->id}' id='tag-{$tag->id}' " . ($tag->checked == 1 ? ' checked="checked"' : '') . "/> <span$twipsy>" . esc_html($tag->name) . "</span></label></li>";
+}
+?>
+	</ul>
+</div>
+<div class='span-one-third'>
+	<h4>Causes (mitcho-only now)</h4>
+	<ul class='inputs-list' id='tags-not_constituent'>
+<?php
+$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where constituency_specific = 'not_constituent'");
+foreach ($tags as $tag) {
+	$twipsy = '';
+	if ( $tag->user )
+		$twipsy = " data-placement='below' rel='twipsy' title='" . esc_attr($tag->user) . "'";
+	$disabled = (USERNAME == 'mitcho' || USERNAME == 'mitcho@mit.edu' ? '' : ' class="disabled" disabled="disabled"');
 	echo "<li><label $disabled><input $disabled type='checkbox' name='tags[{$tag->id}]' data-tag='{$tag->id}' id='tag-{$tag->id}' " . ($tag->checked == 1 ? ' checked="checked"' : '') . "/> <span$twipsy>" . esc_html($tag->name) . "</span></label></li>";
 }
 ?>

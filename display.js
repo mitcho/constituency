@@ -96,9 +96,11 @@ $(document).ready(function() {
 		// remove any 'saved tags!' labels
 		tags_header.find('.label').remove();
 	});
-	// add accelerator labels to 1-9.
-	toggles.slice(0,9).each(function(i) {
-		$(this).children('span').prepend('<span class="accelerator">(' + (i + 1) + ')</span> ');
+	
+	var labels = ['1','2','3','4','5','6','7','8','9','A','B','D','E','F'];
+	// add accelerator labels
+	toggles.slice(0, labels.length).each(function(i) {
+		$(this).children('span').prepend('<span class="accelerator">(' + labels[i] + ')</span> ');
 	})
 
 	$(document.body).keyup(function onkeyup(e) {
@@ -110,8 +112,8 @@ $(document).ready(function() {
 			return;
 
 		// Tags
-		if (theChar === (parseInt(theChar) + '')) {
-			var toggle = toggles.eq(parseInt(theChar) - 1).find('input');
+		if ( labels.indexOf(theChar) > -1 ) {
+			var toggle = toggles.eq(labels.indexOf(theChar)).find('input');
 			toggle.attr('checked', !toggle.attr('checked'));
 
 			// remove any 'saved tags!' labels
