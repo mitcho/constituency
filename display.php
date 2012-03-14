@@ -76,9 +76,9 @@ $next = getNextPrevLink($entry, $id, 'next', $filter_tag);
 <div class='row'>
 <div class='span-one-third'>
 	<h4>Tags</h4>
-	<ul class='inputs-list tag-list' id='tags'>
+	<ul class='inputs-list tags-list' id='tags'>
 <?php
-$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where parse_specific = 0 and constituency_specific is null");
+$tags = $db->get_results("select tags.*, (tid is not null) as checked, tags_xref.user from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where parse_specific = 0 and constituency_specific is null");
 foreach ($tags as $tag) {
 	$twipsy = '';
 	if ( $tag->user )
@@ -91,9 +91,9 @@ foreach ($tags as $tag) {
 </div>
 <div class='span-one-third'>
 	<h4>Causes (mitcho-only now)</h4>
-	<ul class='inputs-list tag-list' id='tags-not_constituent'>
+	<ul class='inputs-list tags-list' id='tags-not_constituent'>
 <?php
-$tags = $db->get_results("select *, (tid is not null) as checked from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where constituency_specific = 'not_constituent'");
+$tags = $db->get_results("select tags.*, (tid is not null) as checked, tags_xref.user from tags left join tags_xref on (tags.`id` = tags_xref.tid and tags_xref.entry = $entry and tags_xref.id = $id) where constituency_specific = 'not_constituent'");
 foreach ($tags as $tag) {
 	$twipsy = '';
 	if ( $tag->user )
