@@ -183,6 +183,7 @@ function nav($type, $subtype = false) {
 			<a class="dropdown-toggle" href="#">Reports</a>
 			<ul class="dropdown-menu">
 				<li<?php if ( $type == 'reports' && $subtype == 'nonconstituents' ) echo ' class="active"'; ?>><a href="nonconstituents.php">Nonconstituents</a></li>
+				<li<?php if ( $type == 'reports' && $subtype == 'nonconstituents-tags' ) echo ' class="active"'; ?>><a href="nonconstituents-tags.php">Nonconstituents by Type</a></li>
 			</ul>
 		</li>
 	  	<li<?php if ( $type == 'history' ) echo " class='active'";?>><a href='history.php' title='User history'>History</a></li>
